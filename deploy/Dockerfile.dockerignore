@@ -1,0 +1,17 @@
+# This Dockerfile-specific ignore file is applied with -f deploy/Dockerfile.
+**
+!package.json
+!server.mjs
+!lib/
+!lib/**
+!public/
+!public/**
+# Defence in depth if a private file ever lands inside an allowed directory.
+**/.env
+**/.env.*
+**/.local
+**/node_modules
+**/*.pem
+**/*.key
+**/.DS_Store
+**/*.log

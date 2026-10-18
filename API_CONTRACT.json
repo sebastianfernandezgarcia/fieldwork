@@ -1,0 +1,89 @@
+{
+  "schemaVersion": "fieldwork.api.v1",
+  "uiLanguage": "en",
+  "endpoints": {
+    "GET /api/health": {"ok": true, "defaultDataMode": "fixture", "qlooConfigured": false, "planner": "bounded-policy-v1", "version": "0.1.0"},
+    "GET /api/examples": {"examples": "Array<Brief>"},
+    "GET /api/search?query=...&domain=movie&dataMode=fixture": {"status": "ok|needs_input", "dataMode": "fixture|live", "candidates": "Array<ReferenceEntity>"},
+    "POST /api/rehearse": {"request": {"exampleId": "optional string", "brief": "optional Brief override", "dataMode": "fixture|live; default fixture"}, "response": "RunState"},
+    "POST /api/revise": {"request": {"state": "RunState or {runId,revision}; canonical server data is used", "action": "Action", "briefEdits": "optional {title,note}; validated metadata only"}, "response": "RunState"}
+  },
+  "Brief": {
+    "id": "quiet-city",
+    "title": "A portrait that feels like a record sleeve",
+    "city": "Barcelona",
+    "purpose": "editorial_portrait",
+    "references": [{"query": "In the Mood for Love", "domain": "movie", "entityId": "optional confirmed search result ID"}],
+    "note": "A quiet portrait, a little tension, a sense of place.",
+    "placeKinds": ["gallery", "bookshop"],
+    "avoidEntityIds": []
+  },
+  "ReferenceEntity": {"id": "sample:movie:in-the-mood", "name": "In the Mood for Love", "domain": "movie", "disambiguation": "2000, Wong Kar-wai", "source": "fixture|qloo"},
+  "Action": {
+    "type": "veto|lock|unlock|change-reference|change-city",
+    "targetId": "treatment or candidate ID for veto/lock/unlock",
+    "reason": "optional user text",
+    "referenceIndex": "integer for change-reference",
+    "reference": "{query,domain,entityId?} for change-reference",
+    "city": "string for change-city"
+  },
+  "RunState": {
+    "schemaVersion": "fieldwork.run.v1",
+    "runId": "uuid",
+    "revision": 1,
+    "dataMode": "fixture|live",
+    "status": "ready|needs_input|insufficient|error",
+    "brief": "Brief",
+    "resolvedReferences": "Array<ReferenceEntity>",
+    "resolutionIssues": "Array<{index,query,reason,candidates:Array<ReferenceEntity>}>",
+    "treatments": "Array<Treatment>; at most two",
+    "candidates": "Array<Candidate>; at most eight",
+    "locks": "Array<treatment ID>",
+    "decisions": "Array<{id,revision,type,targetId,reason,at}>",
+    "trace": "Array<{id,step,tool,status,inputSummary,outputSummary,candidateIds,durationMs?}>",
+    "comparison": "Comparison|null",
+    "verification": "Array<{key,label,status:'unverified',note}>",
+    "warnings": "Array<string>",
+    "provenance": {"planner": "bounded-policy-v1", "qlooUsed": false, "fixtureNote": "Synthetic demonstration. Not Qloo results.", "retrievedAt": "ISO UTC", "requestCount": 0}
+  },
+  "Candidate": {
+    "id": "sample:place:paper-room",
+    "name": "The Paper Room",
+    "kind": "bookshop",
+    "description": "Synthetic editorial setting.",
+    "address": null,
+    "image": null,
+    "city": "original requested search city, preserved across locked revisions",
+    "rank": 1,
+    "affinityRaw": null,
+    "popularityRaw": null,
+    "source": "fixture|qloo",
+    "explanation": null,
+    "sourceQuery": "sanitized query object",
+    "retrievedAt": "ISO UTC"
+  },
+  "Treatment": {
+    "id": "treatment:sample:place:paper-room",
+    "slot": "0 quiet, 1 graphic; fixed treatments preserve their slot",
+    "title": "The quiet frame",
+    "tagline": "Close portraits. A place with a point of view.",
+    "candidateId": "candidate ID",
+    "candidate": "Candidate",
+    "locked": false,
+    "needsReview": false,
+    "editorial": {"source": "authored-template", "premise": "Creative interpretation, not a Qloo visual finding.", "shots": [{"label": "The establishing frame", "note": "Editable photographer instruction."}], "palette": ["#ddd0b8", "#1e332d", "#8c3b2d"]},
+    "evidence": {"source": "fixture|qloo", "affinityRaw": null, "rank": 1, "explanation": null, "referenceNames": ["reference name"], "note": "Aggregate cultural affinity is not visual similarity or a personal probability."}
+  },
+  "Comparison": {
+    "method": "taste-vs-popularity",
+    "available": false,
+    "dataMode": "fixture|live",
+    "candidateSetHash": "sha256",
+    "tasteOrder": ["candidate ID"],
+    "popularityOrder": ["candidate ID"],
+    "changedPositions": [{"id": "candidate ID", "name": "candidate name", "tasteRank": 1, "popularityRank": 2}],
+    "top3Overlap": null,
+    "note": "Ranking differences do not establish quality or individual preference."
+  },
+  "errors": {"shape": {"error": {"code": "QLOO_NOT_CONFIGURED|VALIDATION|QLOO_AUTH|QLOO_RATE_LIMIT|QLOO_TIMEOUT|QLOO_UPSTREAM", "message": "safe English text"}}, "statusCodes": "400 validation, 401 upstream auth, 409 invalid revision action, 429 rate limit, 503 missing configuration/upstream, 504 timeout"}
+}

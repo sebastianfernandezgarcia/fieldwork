@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "fieldwork.browser-groq-replan.v1",
+  "checkedAt": "2026-10-18T11:06:47.559645+00:00",
+  "transport": "live",
+  "model": "openai/gpt-oss-20b",
+  "syntheticCandidates": true,
+  "liveQlooVerified": false,
+  "scope": "One real browser veto/replan on the existing Madrid fixture revision 3 after server restart. The browser selected Explore another direction and vetoed the unaccepted alternative. Canonical local state was compared with a private baseline. This is not a Qloo test.",
+  "sourceRevision": 3,
+  "resultRevision": 4,
+  "modelActions": 3,
+  "policyActions": 0,
+  "requestCount": 3,
+  "requestCountEvidence": "Three successful Groq action records. The adapter performs one request per action, without automatic retries. This receipt does not retain HTTP headers or raw provider responses.",
+  "checks": [
+    {
+      "id": "ready-with-two-treatments",
+      "passed": true
+    },
+    {
+      "id": "locked-treatment-preserved-exactly",
+      "passed": true
+    },
+    {
+      "id": "both-vetoes-excluded",
+      "passed": true
+    },
+    {
+      "id": "new-alternative-model-proposed",
+      "passed": true
+    },
+    {
+      "id": "all-current-revision-actions-model-selected",
+      "passed": true
+    },
+    {
+      "id": "creative-contract-passed",
+      "passed": true
+    },
+    {
+      "id": "fixture-source-preserved",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "verification": {
+    "authenticatedGroq": true,
+    "modelSelection": true,
+    "creativeContract": true,
+    "humanLockPreserved": true,
+    "realQloo": false,
+    "venueFacts": false
+  },
+  "newProposalLengths": {
+    "premise": 107,
+    "shotNotes": [
+      50,
+      47,
+      77
+    ]
+  },
+  "lockedBeforeSha256": "7aadfdbb72284630f4440c5838b55e0a04c2fe0decc2a4d4fd35f30a7d8c574d",
+  "lockedAfterSha256": "7aadfdbb72284630f4440c5838b55e0a04c2fe0decc2a4d4fd35f30a7d8c574d",
+  "currentRevisionSha256": "4a6a1ca6e851461e99b7c6ad1b1e661444fee05602b88e8bce7a47857900924b",
+  "limitations": [
+    "One successful revision does not guarantee all model responses will meet the contract.",
+    "Proposed-action grammar is not factual validation; the creative plan still needs a scout.",
+    "A prior-revision warning remained visible after this successful revision; separate UI/state correction is under test."
+  ],
+  "storage": "Fixed metadata, counts, result checks and hashes only. No credentials, run IDs, prompts, generated copy, raw responses or model reasoning."
+}

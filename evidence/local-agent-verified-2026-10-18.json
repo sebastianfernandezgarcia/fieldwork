@@ -1,0 +1,1774 @@
+{
+  "checkedAt": "2026-10-18T00:36:27.453Z",
+  "elapsedMs": 3775,
+  "model": "jevk5-4b-v0.3:q4_k_m",
+  "modelLocation": "http://127.0.0.1:11434",
+  "providerMode": "fixture",
+  "qlooLiveVerified": false,
+  "checks": [
+    "real local model chose discovery and selection from observations",
+    "locked second treatment preserved byte-for-byte across veto",
+    "rejected place excluded",
+    "sparse result caused a tool-plan change and soft-category relaxation"
+  ],
+  "initial": {
+    "schemaVersion": "fieldwork.run.v1",
+    "runId": "6438c7b6-9935-4300-a85d-0a991b702790",
+    "revision": 1,
+    "dataMode": "fixture",
+    "status": "ready",
+    "brief": {
+      "id": "quiet-city",
+      "title": "A portrait that feels like a record sleeve",
+      "city": "Barcelona",
+      "purpose": "editorial_portrait",
+      "references": [
+        {
+          "query": "In the Mood for Love",
+          "domain": "movie"
+        },
+        {
+          "query": "Khruangbin",
+          "domain": "artist"
+        },
+        {
+          "query": "Aesop",
+          "domain": "brand"
+        }
+      ],
+      "note": "An intimate editorial portrait. A face, a little tension and a city that stays in the background.",
+      "placeKinds": [
+        "bookshop",
+        "gallery"
+      ],
+      "avoidEntityIds": []
+    },
+    "resolvedReferences": [
+      {
+        "id": "sample:reference:1",
+        "name": "In the Mood for Love",
+        "domain": "movie",
+        "disambiguation": "2000, Wong Kar-wai",
+        "source": "fixture"
+      },
+      {
+        "id": "sample:reference:2",
+        "name": "Khruangbin",
+        "domain": "artist",
+        "disambiguation": "American musical trio",
+        "source": "fixture"
+      },
+      {
+        "id": "sample:reference:3",
+        "name": "Aesop",
+        "domain": "brand",
+        "disambiguation": "Personal care brand",
+        "source": "fixture"
+      }
+    ],
+    "resolutionIssues": [],
+    "treatments": [
+      {
+        "id": "treatment:sample:place:barcelona:paper-room",
+        "title": "The quiet frame",
+        "tagline": "A close portrait. Space for a small gesture.",
+        "slot": 0,
+        "candidateId": "sample:place:barcelona:paper-room",
+        "candidate": {
+          "id": "sample:place:barcelona:paper-room",
+          "name": "The Paper Room",
+          "kind": "bookshop",
+          "city": "Barcelona",
+          "description": "A fictional bookshop setting with shelves, a reading table and a narrow front window.",
+          "address": null,
+          "image": null,
+          "rank": 1,
+          "affinityRaw": null,
+          "popularityRaw": null,
+          "source": "fixture",
+          "explanation": null,
+          "sourceQuery": {
+            "fixture": true,
+            "city": "Barcelona",
+            "referenceIds": [
+              "sample:reference:1",
+              "sample:reference:2",
+              "sample:reference:3"
+            ],
+            "kinds": [
+              "bookshop",
+              "gallery"
+            ]
+          },
+          "retrievedAt": "2026-10-18T00:36:24.060Z"
+        },
+        "locked": false,
+        "needsReview": false,
+        "editorial": {
+          "source": "authored-template",
+          "direction": "quiet",
+          "premise": "Try a restrained portrait sequence: one frame that gives the subject room, then move closer. This is an editorial proposal to test on the scout, not a description of verified light at the location.",
+          "shots": [
+            {
+              "label": "01 / A sense of place",
+              "note": "Find a clean frame that includes the subject and one meaningful detail of the setting."
+            },
+            {
+              "label": "02 / The pause",
+              "note": "Move in for a portrait between gestures. Keep one frame still and one in motion."
+            },
+            {
+              "label": "03 / A small detail",
+              "note": "Ask the subject to choose an object or gesture. Photograph it with permission."
+            }
+          ],
+          "palette": [
+            "#d8ccba",
+            "#33443c",
+            "#9b5745"
+          ]
+        },
+        "evidence": {
+          "source": "fixture",
+          "affinityRaw": null,
+          "rank": 1,
+          "explanation": null,
+          "referenceNames": [
+            "In the Mood for Love",
+            "Khruangbin",
+            "Aesop"
+          ],
+          "note": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+        }
+      },
+      {
+        "id": "treatment:sample:place:barcelona:still-gallery",
+        "title": "The graphic frame",
+        "tagline": "A wider gesture. A stronger line.",
+        "slot": 1,
+        "candidateId": "sample:place:barcelona:still-gallery",
+        "candidate": {
+          "id": "sample:place:barcelona:still-gallery",
+          "name": "Still Gallery",
+          "kind": "gallery",
+          "city": "Barcelona",
+          "description": "A fictional gallery setting with a pale wall and an open central room.",
+          "address": null,
+          "image": null,
+          "rank": 3,
+          "affinityRaw": null,
+          "popularityRaw": null,
+          "source": "fixture",
+          "explanation": null,
+          "sourceQuery": {
+            "fixture": true,
+            "city": "Barcelona",
+            "referenceIds": [
+              "sample:reference:1",
+              "sample:reference:2",
+              "sample:reference:3"
+            ],
+            "kinds": [
+              "bookshop",
+              "gallery"
+            ]
+          },
+          "retrievedAt": "2026-10-18T00:36:24.060Z"
+        },
+        "locked": false,
+        "needsReview": false,
+        "editorial": {
+          "source": "authored-template",
+          "direction": "graphic",
+          "premise": "Explore a more graphic treatment: let a line or repeated shape organise the frame, then interrupt it with the subject. Confirm the space and conditions during the scout before committing.",
+          "shots": [
+            {
+              "label": "01 / Draw the frame",
+              "note": "Look for a usable line or repeated shape. Keep the subject small in the first composition."
+            },
+            {
+              "label": "02 / Break the rhythm",
+              "note": "Ask for one movement across the frame. Make a still counterpart so the editor has a choice."
+            },
+            {
+              "label": "03 / The cover image",
+              "note": "Finish with a direct portrait and leave deliberate room for a title or crop."
+            }
+          ],
+          "palette": [
+            "#c9cabf",
+            "#202c31",
+            "#b3492c"
+          ]
+        },
+        "evidence": {
+          "source": "fixture",
+          "affinityRaw": null,
+          "rank": 3,
+          "explanation": null,
+          "referenceNames": [
+            "In the Mood for Love",
+            "Khruangbin",
+            "Aesop"
+          ],
+          "note": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "id": "sample:place:barcelona:paper-room",
+        "name": "The Paper Room",
+        "kind": "bookshop",
+        "city": "Barcelona",
+        "description": "A fictional bookshop setting with shelves, a reading table and a narrow front window.",
+        "address": null,
+        "image": null,
+        "rank": 1,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:24.060Z"
+      },
+      {
+        "id": "sample:place:barcelona:small-hours",
+        "name": "Small Hours",
+        "kind": "bookshop",
+        "city": "Barcelona",
+        "description": "A fictional reading room setting with a single chair and deep shelves.",
+        "address": null,
+        "image": null,
+        "rank": 2,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:24.060Z"
+      },
+      {
+        "id": "sample:place:barcelona:still-gallery",
+        "name": "Still Gallery",
+        "kind": "gallery",
+        "city": "Barcelona",
+        "description": "A fictional gallery setting with a pale wall and an open central room.",
+        "address": null,
+        "image": null,
+        "rank": 3,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:24.060Z"
+      },
+      {
+        "id": "sample:place:barcelona:print-house",
+        "name": "The Print House",
+        "kind": "gallery",
+        "city": "Barcelona",
+        "description": "A fictional print workshop setting with a large worktable and paper on the walls.",
+        "address": null,
+        "image": null,
+        "rank": 4,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:24.060Z"
+      }
+    ],
+    "locks": [],
+    "decisions": [],
+    "trace": [
+      {
+        "id": "2d744dd3-6e66-4ebe-843c-a71c1f264255",
+        "step": 1,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "In the Mood for Love · movie",
+        "outputSummary": "Resolved In the Mood for Love (2000, Wong Kar-wai).",
+        "candidateIds": [
+          "sample:reference:1"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "4dd4a75e-f434-494e-8ae3-e5484976184d",
+        "step": 2,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Khruangbin · artist",
+        "outputSummary": "Resolved Khruangbin (American musical trio).",
+        "candidateIds": [
+          "sample:reference:2"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "0a23333c-f4f4-4d80-b876-bedf199130ab",
+        "step": 3,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Aesop · brand",
+        "outputSummary": "Resolved Aesop (Personal care brand).",
+        "candidateIds": [
+          "sample:reference:3"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "86d5ae8a-1ba7-4bb9-b4b4-6af3968c05b0",
+        "step": 4,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: discover_places. Observed 0 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected discover_places.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "5ea0ddc8-f3dd-4b0c-ac2b-5323a8d878e3",
+        "step": 5,
+        "revision": 1,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "bookshop",
+        "outputSummary": "Confirmed category bookshop.",
+        "candidateIds": [
+          "sample:tag:bookshop"
+        ]
+      },
+      {
+        "id": "3a3e7535-575e-48b5-9a10-5d8d39770a2e",
+        "step": 6,
+        "revision": 1,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "gallery",
+        "outputSummary": "Confirmed category gallery.",
+        "candidateIds": [
+          "sample:tag:gallery"
+        ]
+      },
+      {
+        "id": "acf0c479-b3b8-4d8b-a5ad-be0cdd303a63",
+        "step": 7,
+        "revision": 1,
+        "tool": "discover_places",
+        "status": "completed",
+        "inputSummary": "Barcelona; 3 references; confirmed place preferences.",
+        "outputSummary": "4 candidate places returned by the authored sample fixture.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room",
+          "sample:place:barcelona:small-hours",
+          "sample:place:barcelona:still-gallery",
+          "sample:place:barcelona:print-house"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "3504a599-d7a8-4e21-bc57-6389dd2c09c5",
+        "step": 8,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: select_treatments, relax_preferences. Observed 4 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected select_treatments.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "b60f4fa2-fe35-479f-a10f-69badc4079c9",
+        "step": 9,
+        "revision": 1,
+        "tool": "build_treatments",
+        "status": "completed",
+        "inputSummary": "4 available places and 0 locked decisions.",
+        "outputSummary": "2 editable treatments prepared. Creative directions are authored proposals, separate from Qloo taste evidence.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room",
+          "sample:place:barcelona:still-gallery"
+        ]
+      }
+    ],
+    "comparison": {
+      "method": "taste-vs-popularity",
+      "dataMode": "fixture",
+      "candidateSetHash": "45cf3d6268d9ac9c70747fa62f82df7b507b7c4ed0e2e694ff0143af190f0b2c",
+      "available": false,
+      "tasteOrder": [
+        "sample:place:barcelona:paper-room",
+        "sample:place:barcelona:small-hours",
+        "sample:place:barcelona:still-gallery",
+        "sample:place:barcelona:print-house"
+      ],
+      "popularityOrder": [],
+      "changedPositions": [],
+      "top3Overlap": null,
+      "note": "Sample mode demonstrates the workflow. It cannot measure Qloo against a popularity baseline."
+    },
+    "verification": [
+      {
+        "key": "access",
+        "label": "Access and availability",
+        "status": "unverified",
+        "note": "Confirm whether the location can host this session."
+      },
+      {
+        "key": "permission",
+        "label": "Photography permission",
+        "status": "unverified",
+        "note": "Ask the owner or relevant authority before the shoot."
+      },
+      {
+        "key": "openingHours",
+        "label": "Opening hours",
+        "status": "unverified",
+        "note": "Check the intended date directly with the location."
+      },
+      {
+        "key": "price",
+        "label": "Fees and costs",
+        "status": "unverified",
+        "note": "No fee, rental or admission price has been verified."
+      },
+      {
+        "key": "weather",
+        "label": "Light and weather",
+        "status": "unverified",
+        "note": "Scout the actual light and check conditions before shooting."
+      }
+    ],
+    "warnings": [
+      "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+    ],
+    "provenance": {
+      "planner": "local-ollama",
+      "model": "jevk5-4b-v0.3:q4_k_m",
+      "plannerCalls": 2,
+      "qlooUsed": false,
+      "fixtureNote": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results.",
+      "retrievedAt": "2026-10-18T00:36:24.773Z",
+      "requestCount": 6,
+      "configuredPlanner": "local-ollama",
+      "modelActions": 2,
+      "policyActions": 0
+    }
+  },
+  "revised": {
+    "schemaVersion": "fieldwork.run.v1",
+    "runId": "6438c7b6-9935-4300-a85d-0a991b702790",
+    "revision": 3,
+    "dataMode": "fixture",
+    "status": "ready",
+    "brief": {
+      "id": "quiet-city",
+      "title": "A portrait that feels like a record sleeve",
+      "city": "Barcelona",
+      "purpose": "editorial_portrait",
+      "references": [
+        {
+          "query": "In the Mood for Love",
+          "domain": "movie"
+        },
+        {
+          "query": "Khruangbin",
+          "domain": "artist"
+        },
+        {
+          "query": "Aesop",
+          "domain": "brand"
+        }
+      ],
+      "note": "An intimate editorial portrait. A face, a little tension and a city that stays in the background.",
+      "placeKinds": [
+        "bookshop",
+        "gallery"
+      ],
+      "avoidEntityIds": [
+        "sample:place:barcelona:paper-room"
+      ]
+    },
+    "resolvedReferences": [
+      {
+        "id": "sample:reference:1",
+        "name": "In the Mood for Love",
+        "domain": "movie",
+        "disambiguation": "2000, Wong Kar-wai",
+        "source": "fixture"
+      },
+      {
+        "id": "sample:reference:2",
+        "name": "Khruangbin",
+        "domain": "artist",
+        "disambiguation": "American musical trio",
+        "source": "fixture"
+      },
+      {
+        "id": "sample:reference:3",
+        "name": "Aesop",
+        "domain": "brand",
+        "disambiguation": "Personal care brand",
+        "source": "fixture"
+      }
+    ],
+    "resolutionIssues": [],
+    "treatments": [
+      {
+        "id": "treatment:sample:place:barcelona:small-hours",
+        "title": "The quiet frame",
+        "tagline": "A close portrait. Space for a small gesture.",
+        "slot": 0,
+        "candidateId": "sample:place:barcelona:small-hours",
+        "candidate": {
+          "id": "sample:place:barcelona:small-hours",
+          "name": "Small Hours",
+          "kind": "bookshop",
+          "city": "Barcelona",
+          "description": "A fictional reading room setting with a single chair and deep shelves.",
+          "address": null,
+          "image": null,
+          "rank": 1,
+          "affinityRaw": null,
+          "popularityRaw": null,
+          "source": "fixture",
+          "explanation": null,
+          "sourceQuery": {
+            "fixture": true,
+            "city": "Barcelona",
+            "referenceIds": [
+              "sample:reference:1",
+              "sample:reference:2",
+              "sample:reference:3"
+            ],
+            "kinds": [
+              "bookshop",
+              "gallery"
+            ]
+          },
+          "retrievedAt": "2026-10-18T00:36:25.135Z"
+        },
+        "locked": false,
+        "needsReview": false,
+        "editorial": {
+          "source": "authored-template",
+          "direction": "quiet",
+          "premise": "Try a restrained portrait sequence: one frame that gives the subject room, then move closer. This is an editorial proposal to test on the scout, not a description of verified light at the location.",
+          "shots": [
+            {
+              "label": "01 / A sense of place",
+              "note": "Find a clean frame that includes the subject and one meaningful detail of the setting."
+            },
+            {
+              "label": "02 / The pause",
+              "note": "Move in for a portrait between gestures. Keep one frame still and one in motion."
+            },
+            {
+              "label": "03 / A small detail",
+              "note": "Ask the subject to choose an object or gesture. Photograph it with permission."
+            }
+          ],
+          "palette": [
+            "#d8ccba",
+            "#33443c",
+            "#9b5745"
+          ]
+        },
+        "evidence": {
+          "source": "fixture",
+          "affinityRaw": null,
+          "rank": 1,
+          "explanation": null,
+          "referenceNames": [
+            "In the Mood for Love",
+            "Khruangbin",
+            "Aesop"
+          ],
+          "note": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+        }
+      },
+      {
+        "id": "treatment:sample:place:barcelona:still-gallery",
+        "title": "The graphic frame",
+        "tagline": "A wider gesture. A stronger line.",
+        "slot": 1,
+        "candidateId": "sample:place:barcelona:still-gallery",
+        "candidate": {
+          "id": "sample:place:barcelona:still-gallery",
+          "name": "Still Gallery",
+          "kind": "gallery",
+          "city": "Barcelona",
+          "description": "A fictional gallery setting with a pale wall and an open central room.",
+          "address": null,
+          "image": null,
+          "rank": 3,
+          "affinityRaw": null,
+          "popularityRaw": null,
+          "source": "fixture",
+          "explanation": null,
+          "sourceQuery": {
+            "fixture": true,
+            "city": "Barcelona",
+            "referenceIds": [
+              "sample:reference:1",
+              "sample:reference:2",
+              "sample:reference:3"
+            ],
+            "kinds": [
+              "bookshop",
+              "gallery"
+            ]
+          },
+          "retrievedAt": "2026-10-18T00:36:24.060Z"
+        },
+        "locked": true,
+        "needsReview": false,
+        "editorial": {
+          "source": "authored-template",
+          "direction": "graphic",
+          "premise": "Explore a more graphic treatment: let a line or repeated shape organise the frame, then interrupt it with the subject. Confirm the space and conditions during the scout before committing.",
+          "shots": [
+            {
+              "label": "01 / Draw the frame",
+              "note": "Look for a usable line or repeated shape. Keep the subject small in the first composition."
+            },
+            {
+              "label": "02 / Break the rhythm",
+              "note": "Ask for one movement across the frame. Make a still counterpart so the editor has a choice."
+            },
+            {
+              "label": "03 / The cover image",
+              "note": "Finish with a direct portrait and leave deliberate room for a title or crop."
+            }
+          ],
+          "palette": [
+            "#c9cabf",
+            "#202c31",
+            "#b3492c"
+          ]
+        },
+        "evidence": {
+          "source": "fixture",
+          "affinityRaw": null,
+          "rank": 3,
+          "explanation": null,
+          "referenceNames": [
+            "In the Mood for Love",
+            "Khruangbin",
+            "Aesop"
+          ],
+          "note": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "id": "sample:place:barcelona:small-hours",
+        "name": "Small Hours",
+        "kind": "bookshop",
+        "city": "Barcelona",
+        "description": "A fictional reading room setting with a single chair and deep shelves.",
+        "address": null,
+        "image": null,
+        "rank": 1,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:25.135Z"
+      },
+      {
+        "id": "sample:place:barcelona:still-gallery",
+        "name": "Still Gallery",
+        "kind": "gallery",
+        "city": "Barcelona",
+        "description": "A fictional gallery setting with a pale wall and an open central room.",
+        "address": null,
+        "image": null,
+        "rank": 2,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:25.135Z"
+      },
+      {
+        "id": "sample:place:barcelona:print-house",
+        "name": "The Print House",
+        "kind": "gallery",
+        "city": "Barcelona",
+        "description": "A fictional print workshop setting with a large worktable and paper on the walls.",
+        "address": null,
+        "image": null,
+        "rank": 3,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": [
+            "bookshop",
+            "gallery"
+          ]
+        },
+        "retrievedAt": "2026-10-18T00:36:25.135Z"
+      }
+    ],
+    "locks": [
+      "treatment:sample:place:barcelona:still-gallery"
+    ],
+    "decisions": [
+      {
+        "id": "8d06d9ca-59af-4bf1-a833-795c314d6e1e",
+        "revision": 2,
+        "type": "lock",
+        "targetId": "treatment:sample:place:barcelona:still-gallery",
+        "reason": "",
+        "at": "2026-10-18T00:36:24.773Z"
+      },
+      {
+        "id": "70f846b5-6ad6-4dc2-b654-0343b37008fe",
+        "revision": 3,
+        "type": "veto",
+        "targetId": "treatment:sample:place:barcelona:paper-room",
+        "reason": "Try another option while keeping the agreed graphic treatment.",
+        "at": "2026-10-18T00:36:24.773Z"
+      }
+    ],
+    "trace": [
+      {
+        "id": "2d744dd3-6e66-4ebe-843c-a71c1f264255",
+        "step": 1,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "In the Mood for Love · movie",
+        "outputSummary": "Resolved In the Mood for Love (2000, Wong Kar-wai).",
+        "candidateIds": [
+          "sample:reference:1"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "4dd4a75e-f434-494e-8ae3-e5484976184d",
+        "step": 2,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Khruangbin · artist",
+        "outputSummary": "Resolved Khruangbin (American musical trio).",
+        "candidateIds": [
+          "sample:reference:2"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "0a23333c-f4f4-4d80-b876-bedf199130ab",
+        "step": 3,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Aesop · brand",
+        "outputSummary": "Resolved Aesop (Personal care brand).",
+        "candidateIds": [
+          "sample:reference:3"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "86d5ae8a-1ba7-4bb9-b4b4-6af3968c05b0",
+        "step": 4,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: discover_places. Observed 0 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected discover_places.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "5ea0ddc8-f3dd-4b0c-ac2b-5323a8d878e3",
+        "step": 5,
+        "revision": 1,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "bookshop",
+        "outputSummary": "Confirmed category bookshop.",
+        "candidateIds": [
+          "sample:tag:bookshop"
+        ]
+      },
+      {
+        "id": "3a3e7535-575e-48b5-9a10-5d8d39770a2e",
+        "step": 6,
+        "revision": 1,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "gallery",
+        "outputSummary": "Confirmed category gallery.",
+        "candidateIds": [
+          "sample:tag:gallery"
+        ]
+      },
+      {
+        "id": "acf0c479-b3b8-4d8b-a5ad-be0cdd303a63",
+        "step": 7,
+        "revision": 1,
+        "tool": "discover_places",
+        "status": "completed",
+        "inputSummary": "Barcelona; 3 references; confirmed place preferences.",
+        "outputSummary": "4 candidate places returned by the authored sample fixture.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room",
+          "sample:place:barcelona:small-hours",
+          "sample:place:barcelona:still-gallery",
+          "sample:place:barcelona:print-house"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "3504a599-d7a8-4e21-bc57-6389dd2c09c5",
+        "step": 8,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: select_treatments, relax_preferences. Observed 4 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected select_treatments.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "b60f4fa2-fe35-479f-a10f-69badc4079c9",
+        "step": 9,
+        "revision": 1,
+        "tool": "build_treatments",
+        "status": "completed",
+        "inputSummary": "4 available places and 0 locked decisions.",
+        "outputSummary": "2 editable treatments prepared. Creative directions are authored proposals, separate from Qloo taste evidence.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room",
+          "sample:place:barcelona:still-gallery"
+        ]
+      },
+      {
+        "id": "83a8cf54-0bea-40c3-96d6-aa2d6da0dda6",
+        "step": 10,
+        "revision": 2,
+        "tool": "lock",
+        "status": "completed",
+        "inputSummary": "Still Gallery",
+        "outputSummary": "This treatment is fixed. Future revisions preserve it.",
+        "candidateIds": [
+          "sample:place:barcelona:still-gallery"
+        ]
+      },
+      {
+        "id": "427459f3-0e2a-43c9-8cce-ff4a9686a72b",
+        "step": 11,
+        "revision": 3,
+        "tool": "veto",
+        "status": "completed",
+        "inputSummary": "The Paper Room",
+        "outputSummary": "Try another option while keeping the agreed graphic treatment.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room"
+        ]
+      },
+      {
+        "id": "96dc9dd0-6277-457c-b130-8d7a8b2aa037",
+        "step": 12,
+        "revision": 3,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "In the Mood for Love · movie",
+        "outputSummary": "Resolved In the Mood for Love (2000, Wong Kar-wai).",
+        "candidateIds": [
+          "sample:reference:1"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "13604915-cc6b-4b29-b046-bbd36ef981b2",
+        "step": 13,
+        "revision": 3,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Khruangbin · artist",
+        "outputSummary": "Resolved Khruangbin (American musical trio).",
+        "candidateIds": [
+          "sample:reference:2"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "0254b058-9230-4465-9524-831d7c74b8b7",
+        "step": 14,
+        "revision": 3,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Aesop · brand",
+        "outputSummary": "Resolved Aesop (Personal care brand).",
+        "candidateIds": [
+          "sample:reference:3"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "8c04b514-5a3e-4528-8566-604eb18e6091",
+        "step": 15,
+        "revision": 3,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: discover_places. Observed 0 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected discover_places.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "2b1efdda-91a0-406c-8d6c-028017eb6732",
+        "step": 16,
+        "revision": 3,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "bookshop",
+        "outputSummary": "Confirmed category bookshop.",
+        "candidateIds": [
+          "sample:tag:bookshop"
+        ]
+      },
+      {
+        "id": "a4834782-148e-4778-98c1-732521db11ed",
+        "step": 17,
+        "revision": 3,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "gallery",
+        "outputSummary": "Confirmed category gallery.",
+        "candidateIds": [
+          "sample:tag:gallery"
+        ]
+      },
+      {
+        "id": "4ce7129c-5bb0-4133-b577-91ec443a97ed",
+        "step": 18,
+        "revision": 3,
+        "tool": "discover_places",
+        "status": "completed",
+        "inputSummary": "Barcelona; 3 references; confirmed place preferences.",
+        "outputSummary": "3 candidate places returned by the authored sample fixture.",
+        "candidateIds": [
+          "sample:place:barcelona:small-hours",
+          "sample:place:barcelona:still-gallery",
+          "sample:place:barcelona:print-house"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "f0216c77-905a-478d-9bb5-f399208694b3",
+        "step": 19,
+        "revision": 3,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: select_treatments, relax_preferences. Observed 3 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected select_treatments.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "32a900c4-176d-4019-a013-95dcd06c9f8e",
+        "step": 20,
+        "revision": 3,
+        "tool": "build_treatments",
+        "status": "completed",
+        "inputSummary": "3 available places and 1 locked decisions.",
+        "outputSummary": "2 editable treatments prepared. Creative directions are authored proposals, separate from Qloo taste evidence.",
+        "candidateIds": [
+          "sample:place:barcelona:small-hours",
+          "sample:place:barcelona:still-gallery"
+        ]
+      }
+    ],
+    "comparison": {
+      "method": "taste-vs-popularity",
+      "dataMode": "fixture",
+      "candidateSetHash": "1e98f48b59ef418709dbe76dae6ce980eca23e09f3aa938566fbf886f83871de",
+      "available": false,
+      "tasteOrder": [
+        "sample:place:barcelona:small-hours",
+        "sample:place:barcelona:still-gallery",
+        "sample:place:barcelona:print-house"
+      ],
+      "popularityOrder": [],
+      "changedPositions": [],
+      "top3Overlap": null,
+      "note": "Sample mode demonstrates the workflow. It cannot measure Qloo against a popularity baseline."
+    },
+    "verification": [
+      {
+        "key": "access",
+        "label": "Access and availability",
+        "status": "unverified",
+        "note": "Confirm whether the location can host this session."
+      },
+      {
+        "key": "permission",
+        "label": "Photography permission",
+        "status": "unverified",
+        "note": "Ask the owner or relevant authority before the shoot."
+      },
+      {
+        "key": "openingHours",
+        "label": "Opening hours",
+        "status": "unverified",
+        "note": "Check the intended date directly with the location."
+      },
+      {
+        "key": "price",
+        "label": "Fees and costs",
+        "status": "unverified",
+        "note": "No fee, rental or admission price has been verified."
+      },
+      {
+        "key": "weather",
+        "label": "Light and weather",
+        "status": "unverified",
+        "note": "Scout the actual light and check conditions before shooting."
+      }
+    ],
+    "warnings": [
+      "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+    ],
+    "provenance": {
+      "planner": "local-ollama",
+      "model": "jevk5-4b-v0.3:q4_k_m",
+      "plannerCalls": 2,
+      "qlooUsed": false,
+      "fixtureNote": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results.",
+      "retrievedAt": "2026-10-18T00:36:25.820Z",
+      "requestCount": 6,
+      "configuredPlanner": "local-ollama",
+      "modelActions": 2,
+      "policyActions": 0
+    }
+  },
+  "sparse": {
+    "schemaVersion": "fieldwork.run.v1",
+    "runId": "917406c0-87fd-42c5-aea0-7581df03d06b",
+    "revision": 1,
+    "dataMode": "fixture",
+    "status": "ready",
+    "brief": {
+      "id": "quiet-city",
+      "title": "A portrait that feels like a record sleeve",
+      "city": "Barcelona",
+      "purpose": "editorial_portrait",
+      "references": [
+        {
+          "query": "In the Mood for Love",
+          "domain": "movie"
+        },
+        {
+          "query": "Khruangbin",
+          "domain": "artist"
+        },
+        {
+          "query": "Aesop",
+          "domain": "brand"
+        }
+      ],
+      "note": "An intimate editorial portrait. A face, a little tension and a city that stays in the background.",
+      "placeKinds": [
+        "bookshop",
+        "gallery"
+      ],
+      "avoidEntityIds": []
+    },
+    "resolvedReferences": [
+      {
+        "id": "sample:reference:1",
+        "name": "In the Mood for Love",
+        "domain": "movie",
+        "disambiguation": "2000, Wong Kar-wai",
+        "source": "fixture"
+      },
+      {
+        "id": "sample:reference:2",
+        "name": "Khruangbin",
+        "domain": "artist",
+        "disambiguation": "American musical trio",
+        "source": "fixture"
+      },
+      {
+        "id": "sample:reference:3",
+        "name": "Aesop",
+        "domain": "brand",
+        "disambiguation": "Personal care brand",
+        "source": "fixture"
+      }
+    ],
+    "resolutionIssues": [],
+    "treatments": [
+      {
+        "id": "treatment:sample:place:barcelona:paper-room",
+        "title": "The quiet frame",
+        "tagline": "A close portrait. Space for a small gesture.",
+        "slot": 0,
+        "candidateId": "sample:place:barcelona:paper-room",
+        "candidate": {
+          "id": "sample:place:barcelona:paper-room",
+          "name": "The Paper Room",
+          "kind": "bookshop",
+          "city": "Barcelona",
+          "description": "A fictional bookshop setting with shelves, a reading table and a narrow front window.",
+          "address": null,
+          "image": null,
+          "rank": 1,
+          "affinityRaw": null,
+          "popularityRaw": null,
+          "source": "fixture",
+          "explanation": null,
+          "sourceQuery": {
+            "fixture": true,
+            "city": "Barcelona",
+            "referenceIds": [
+              "sample:reference:1",
+              "sample:reference:2",
+              "sample:reference:3"
+            ],
+            "kinds": []
+          },
+          "retrievedAt": "2026-10-18T00:36:26.537Z"
+        },
+        "locked": false,
+        "needsReview": false,
+        "editorial": {
+          "source": "authored-template",
+          "direction": "quiet",
+          "premise": "Try a restrained portrait sequence: one frame that gives the subject room, then move closer. This is an editorial proposal to test on the scout, not a description of verified light at the location.",
+          "shots": [
+            {
+              "label": "01 / A sense of place",
+              "note": "Find a clean frame that includes the subject and one meaningful detail of the setting."
+            },
+            {
+              "label": "02 / The pause",
+              "note": "Move in for a portrait between gestures. Keep one frame still and one in motion."
+            },
+            {
+              "label": "03 / A small detail",
+              "note": "Ask the subject to choose an object or gesture. Photograph it with permission."
+            }
+          ],
+          "palette": [
+            "#d8ccba",
+            "#33443c",
+            "#9b5745"
+          ]
+        },
+        "evidence": {
+          "source": "fixture",
+          "affinityRaw": null,
+          "rank": 1,
+          "explanation": null,
+          "referenceNames": [
+            "In the Mood for Love",
+            "Khruangbin",
+            "Aesop"
+          ],
+          "note": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+        }
+      },
+      {
+        "id": "treatment:sample:place:barcelona:still-gallery",
+        "title": "The graphic frame",
+        "tagline": "A wider gesture. A stronger line.",
+        "slot": 1,
+        "candidateId": "sample:place:barcelona:still-gallery",
+        "candidate": {
+          "id": "sample:place:barcelona:still-gallery",
+          "name": "Still Gallery",
+          "kind": "gallery",
+          "city": "Barcelona",
+          "description": "A fictional gallery setting with a pale wall and an open central room.",
+          "address": null,
+          "image": null,
+          "rank": 3,
+          "affinityRaw": null,
+          "popularityRaw": null,
+          "source": "fixture",
+          "explanation": null,
+          "sourceQuery": {
+            "fixture": true,
+            "city": "Barcelona",
+            "referenceIds": [
+              "sample:reference:1",
+              "sample:reference:2",
+              "sample:reference:3"
+            ],
+            "kinds": []
+          },
+          "retrievedAt": "2026-10-18T00:36:26.537Z"
+        },
+        "locked": false,
+        "needsReview": false,
+        "editorial": {
+          "source": "authored-template",
+          "direction": "graphic",
+          "premise": "Explore a more graphic treatment: let a line or repeated shape organise the frame, then interrupt it with the subject. Confirm the space and conditions during the scout before committing.",
+          "shots": [
+            {
+              "label": "01 / Draw the frame",
+              "note": "Look for a usable line or repeated shape. Keep the subject small in the first composition."
+            },
+            {
+              "label": "02 / Break the rhythm",
+              "note": "Ask for one movement across the frame. Make a still counterpart so the editor has a choice."
+            },
+            {
+              "label": "03 / The cover image",
+              "note": "Finish with a direct portrait and leave deliberate room for a title or crop."
+            }
+          ],
+          "palette": [
+            "#c9cabf",
+            "#202c31",
+            "#b3492c"
+          ]
+        },
+        "evidence": {
+          "source": "fixture",
+          "affinityRaw": null,
+          "rank": 3,
+          "explanation": null,
+          "referenceNames": [
+            "In the Mood for Love",
+            "Khruangbin",
+            "Aesop"
+          ],
+          "note": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+        }
+      }
+    ],
+    "candidates": [
+      {
+        "id": "sample:place:barcelona:paper-room",
+        "name": "The Paper Room",
+        "kind": "bookshop",
+        "city": "Barcelona",
+        "description": "A fictional bookshop setting with shelves, a reading table and a narrow front window.",
+        "address": null,
+        "image": null,
+        "rank": 1,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:small-hours",
+        "name": "Small Hours",
+        "kind": "bookshop",
+        "city": "Barcelona",
+        "description": "A fictional reading room setting with a single chair and deep shelves.",
+        "address": null,
+        "image": null,
+        "rank": 2,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:still-gallery",
+        "name": "Still Gallery",
+        "kind": "gallery",
+        "city": "Barcelona",
+        "description": "A fictional gallery setting with a pale wall and an open central room.",
+        "address": null,
+        "image": null,
+        "rank": 3,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:print-house",
+        "name": "The Print House",
+        "kind": "gallery",
+        "city": "Barcelona",
+        "description": "A fictional print workshop setting with a large worktable and paper on the walls.",
+        "address": null,
+        "image": null,
+        "rank": 4,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:west-courtyard",
+        "name": "West Courtyard",
+        "kind": "courtyard",
+        "city": "Barcelona",
+        "description": "A fictional courtyard setting with a long wall and a small tree.",
+        "address": null,
+        "image": null,
+        "rank": 5,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:green-room",
+        "name": "The Green Room",
+        "kind": "garden",
+        "city": "Barcelona",
+        "description": "A fictional garden setting with foliage, a path and a stone bench.",
+        "address": null,
+        "image": null,
+        "rank": 6,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:corner-table",
+        "name": "Corner Table",
+        "kind": "café",
+        "city": "Barcelona",
+        "description": "A fictional café setting with two stools and a street-facing window.",
+        "address": null,
+        "image": null,
+        "rank": 7,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      },
+      {
+        "id": "sample:place:barcelona:arcade-seven",
+        "name": "Arcade Seven",
+        "kind": "passage",
+        "city": "Barcelona",
+        "description": "A fictional covered passage with repeated columns and a long view.",
+        "address": null,
+        "image": null,
+        "rank": 8,
+        "affinityRaw": null,
+        "popularityRaw": null,
+        "source": "fixture",
+        "explanation": null,
+        "sourceQuery": {
+          "fixture": true,
+          "city": "Barcelona",
+          "referenceIds": [
+            "sample:reference:1",
+            "sample:reference:2",
+            "sample:reference:3"
+          ],
+          "kinds": []
+        },
+        "retrievedAt": "2026-10-18T00:36:26.537Z"
+      }
+    ],
+    "locks": [],
+    "decisions": [],
+    "trace": [
+      {
+        "id": "d9fef9ba-164a-488f-b82e-9b83f77c46a3",
+        "step": 1,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "In the Mood for Love · movie",
+        "outputSummary": "Resolved In the Mood for Love (2000, Wong Kar-wai).",
+        "candidateIds": [
+          "sample:reference:1"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "adff3b84-2538-45c2-a665-ba56e26728da",
+        "step": 2,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Khruangbin · artist",
+        "outputSummary": "Resolved Khruangbin (American musical trio).",
+        "candidateIds": [
+          "sample:reference:2"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "e165594c-3651-4660-bc0a-82ed8278b6c3",
+        "step": 3,
+        "revision": 1,
+        "tool": "resolve_reference",
+        "status": "completed",
+        "inputSummary": "Aesop · brand",
+        "outputSummary": "Resolved Aesop (Personal care brand).",
+        "candidateIds": [
+          "sample:reference:3"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "ccae1dc6-dcbe-4cc0-a826-35b5fe1036dc",
+        "step": 4,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: discover_places. Observed 0 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected discover_places.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "a6301008-f0cb-41ad-9878-2031870d7258",
+        "step": 5,
+        "revision": 1,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "bookshop",
+        "outputSummary": "Confirmed category bookshop.",
+        "candidateIds": [
+          "sample:tag:bookshop"
+        ]
+      },
+      {
+        "id": "d4cd268b-6390-4f57-bd89-1f3afdd9c18a",
+        "step": 6,
+        "revision": 1,
+        "tool": "resolve_category",
+        "status": "completed",
+        "inputSummary": "gallery",
+        "outputSummary": "Confirmed category gallery.",
+        "candidateIds": [
+          "sample:tag:gallery"
+        ]
+      },
+      {
+        "id": "a3f8f7ee-6f0c-4b10-bc59-36a25d63a09c",
+        "step": 7,
+        "revision": 1,
+        "tool": "discover_places",
+        "status": "completed",
+        "inputSummary": "Barcelona; 3 references; confirmed place preferences.",
+        "outputSummary": "0 candidate places returned by the authored sample fixture.",
+        "candidateIds": [],
+        "durationMs": 0
+      },
+      {
+        "id": "43d8b0f9-e7cb-4426-9bee-8b484a7fba32",
+        "step": 8,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: select_treatments, relax_preferences. Observed 0 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected relax_preferences.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "775a1d6d-5d82-4d41-9d3a-ddb6f3a33ec8",
+        "step": 9,
+        "revision": 1,
+        "tool": "relax_preferences",
+        "status": "completed",
+        "inputSummary": "Only 0 matching places.",
+        "outputSummary": "Removed the soft place-kind filter. Kept the city, cultural references, exclusions and locked choices.",
+        "candidateIds": []
+      },
+      {
+        "id": "2d4ee876-7ce9-433c-b018-d52018608ea5",
+        "step": 10,
+        "revision": 1,
+        "tool": "discover_places",
+        "status": "completed",
+        "inputSummary": "Barcelona; 3 references; all place kinds.",
+        "outputSummary": "8 candidate places returned by the authored sample fixture.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room",
+          "sample:place:barcelona:small-hours",
+          "sample:place:barcelona:still-gallery",
+          "sample:place:barcelona:print-house",
+          "sample:place:barcelona:west-courtyard",
+          "sample:place:barcelona:green-room",
+          "sample:place:barcelona:corner-table",
+          "sample:place:barcelona:arcade-seven"
+        ],
+        "durationMs": 0
+      },
+      {
+        "id": "d14e362a-6fa2-4a66-b2c6-72efb8869359",
+        "step": 11,
+        "revision": 1,
+        "tool": "planner",
+        "status": "completed",
+        "inputSummary": "Allowed tools: select_treatments. Observed 8 places.",
+        "outputSummary": "Local model jevk5-4b-v0.3:q4_k_m selected select_treatments.",
+        "candidateIds": [],
+        "planner": "local-ollama",
+        "model": "jevk5-4b-v0.3:q4_k_m"
+      },
+      {
+        "id": "253c9d32-c78c-4cd9-a5d3-1cd75ecbbb66",
+        "step": 12,
+        "revision": 1,
+        "tool": "build_treatments",
+        "status": "completed",
+        "inputSummary": "8 available places and 0 locked decisions.",
+        "outputSummary": "2 editable treatments prepared. Creative directions are authored proposals, separate from Qloo taste evidence.",
+        "candidateIds": [
+          "sample:place:barcelona:paper-room",
+          "sample:place:barcelona:still-gallery"
+        ]
+      }
+    ],
+    "comparison": {
+      "method": "taste-vs-popularity",
+      "dataMode": "fixture",
+      "candidateSetHash": "5919e138939af354da59938b3eadef417c3ffabd20f917b14fc71027701a13d5",
+      "available": false,
+      "tasteOrder": [
+        "sample:place:barcelona:paper-room",
+        "sample:place:barcelona:small-hours",
+        "sample:place:barcelona:still-gallery",
+        "sample:place:barcelona:print-house",
+        "sample:place:barcelona:west-courtyard",
+        "sample:place:barcelona:green-room",
+        "sample:place:barcelona:corner-table",
+        "sample:place:barcelona:arcade-seven"
+      ],
+      "popularityOrder": [],
+      "changedPositions": [],
+      "top3Overlap": null,
+      "note": "Sample mode demonstrates the workflow. It cannot measure Qloo against a popularity baseline."
+    },
+    "verification": [
+      {
+        "key": "access",
+        "label": "Access and availability",
+        "status": "unverified",
+        "note": "Confirm whether the location can host this session."
+      },
+      {
+        "key": "permission",
+        "label": "Photography permission",
+        "status": "unverified",
+        "note": "Ask the owner or relevant authority before the shoot."
+      },
+      {
+        "key": "openingHours",
+        "label": "Opening hours",
+        "status": "unverified",
+        "note": "Check the intended date directly with the location."
+      },
+      {
+        "key": "price",
+        "label": "Fees and costs",
+        "status": "unverified",
+        "note": "No fee, rental or admission price has been verified."
+      },
+      {
+        "key": "weather",
+        "label": "Light and weather",
+        "status": "unverified",
+        "note": "Scout the actual light and check conditions before shooting."
+      }
+    ],
+    "warnings": [
+      "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results."
+    ],
+    "provenance": {
+      "planner": "local-ollama",
+      "model": "jevk5-4b-v0.3:q4_k_m",
+      "plannerCalls": 3,
+      "qlooUsed": false,
+      "fixtureNote": "Synthetic demonstration. The venues and ordering are authored examples, not Qloo results.",
+      "retrievedAt": "2026-10-18T00:36:27.453Z",
+      "requestCount": 6,
+      "configuredPlanner": "local-ollama",
+      "modelActions": 3,
+      "policyActions": 0
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "createdAt": "2026-10-18",
+  "tool": "image_gen.imagegen built-in",
+  "purpose": "Illustrative mood studies only. Not images of any recommended real location.",
+  "assets": [
+    {
+      "file": "mood-wide.jpg",
+      "sourcePng": "mood-wide.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: a wide editorial mood photograph for FIELDWORK, a premium photography pre-production app, clearly used as an illustrative mood study rather than a real location record. Primary request: a highly crafted cinematic photograph of an anonymous Atlantic coastal promenade at the edge of a town, blue hour; a distant solitary anonymous figure carrying a compact camera walking beside weathered warm sandstone, dark blue sea and light sea mist, one understated amber streetlamp. No recognizable landmark. Restrained film-like color, tactile stone, subtle natural grain, quiet mood, no fake extreme bokeh. Architectural composition, wide panorama with strong negative space and generous depth, no text/logos/watermarks, no collage, no UI. Photographer magazine quality; lifelike, subtle not overprocessed. Palette mineral grey, deep Atlantic blue, warm terracotta and small amber highlight. Wide landscape 16:9."
+    },
+    {
+      "file": "mood-detail.jpg",
+      "sourcePng": "mood-detail.png",
+      "prompt": "Use case: photorealistic-natural. Asset type: an editorial mood-study photograph for a premium photography preproduction application called FIELDWORK. This is an imagined scene, not a photograph of any identified real place. Primary request: a deeply composed view inside a quiet anonymous modernist arts courtyard, a wide concrete arch foreground, warm cream travertine, geometric shadows in late afternoon, a small anonymous person in rust-colored jacket seated far back beside a rectangular reflecting pool. Interesting asymmetric architectural framing, sunlight making one sharp terracotta diagonal on neutral stone. Expensive architectural magazine photography with understated film grain and true material texture, tactile and lived in, not a sterile 3D render, realistic dynamic range. No text, signage, logos, no collage or interface, no identifiable monument. Landscape 3:2; attractive as a medium-sized photographic contact-sheet image. Colors warm limestone, dark charcoal, muted rust, soft olive. Mood contemplative but warm, distinctly different from blue-hour coast."
+    }
+  ]
+}

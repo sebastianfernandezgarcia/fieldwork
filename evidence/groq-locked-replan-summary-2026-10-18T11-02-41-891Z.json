@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "fieldwork.groq-locked-replan.v1",
+  "startedAt": "2026-10-18T11:02:41.891Z",
+  "transport": "live",
+  "model": "openai/gpt-oss-20b",
+  "syntheticCandidates": true,
+  "liveQlooVerified": false,
+  "qlooRequests": 0,
+  "sourceRevision": 3,
+  "requestBudget": 3,
+  "requests": [
+    {
+      "index": 1,
+      "httpStatus": 200,
+      "strictSchemaRequested": true,
+      "schemaFields": [
+        "action",
+        "usePreferences"
+      ],
+      "requestedMaxTokens": 1300,
+      "estimatedMaxTokens": 3701,
+      "durationMs": 401,
+      "observedRemainingTokens": 6991
+    },
+    {
+      "index": 2,
+      "httpStatus": 200,
+      "strictSchemaRequested": true,
+      "schemaFields": [
+        "action",
+        "usePreferences",
+        "candidateIds",
+        "creativeProposals"
+      ],
+      "requestedMaxTokens": 1300,
+      "estimatedMaxTokens": 4588,
+      "durationMs": 364,
+      "observedRemainingTokens": 5638
+    },
+    {
+      "index": 3,
+      "httpStatus": 200,
+      "strictSchemaRequested": true,
+      "schemaFields": [
+        "action",
+        "usePreferences",
+        "candidateIds",
+        "creativeProposals"
+      ],
+      "requestedMaxTokens": 1300,
+      "estimatedMaxTokens": 5074,
+      "durationMs": 862,
+      "observedRemainingTokens": 3790
+    }
+  ],
+  "checks": [
+    {
+      "id": "ready-with-two-treatments",
+      "passed": true
+    },
+    {
+      "id": "locked-treatment-preserved-exactly",
+      "passed": true
+    },
+    {
+      "id": "both-vetoes-excluded",
+      "passed": true
+    },
+    {
+      "id": "new-alternative-model-proposed",
+      "passed": false
+    },
+    {
+      "id": "proposed-action-not-factual-verification",
+      "passed": false
+    },
+    {
+      "id": "all-current-revision-actions-model-selected",
+      "passed": true
+    },
+    {
+      "id": "discovery-uses-only-phase-arguments",
+      "passed": true
+    },
+    {
+      "id": "fixture-source-preserved",
+      "passed": true
+    },
+    {
+      "id": "strict-structured-output-requested",
+      "passed": true
+    },
+    {
+      "id": "request-limit-respected",
+      "passed": true
+    }
+  ],
+  "scope": "Next veto/replan on an in-memory copy of the existing Madrid fixture revision 3. An earlier locked model proposal is preserved; the current unaccepted alternative is vetoed. This is not a rerun of the initial scout and does not verify Qloo, venue facts or public hosting.",
+  "storage": "Only fixed metadata, checks, counts and a normalized-output hash are retained in this receipt. No credential, prompt, generated text, raw provider response, headers or model reasoning.",
+  "resultRevision": 4,
+  "modelActions": 3,
+  "policyActions": 0,
+  "failureCodes": [
+    "CREATIVE_TEXT_LIMIT"
+  ],
+  "outputSha256": "fabca2db7aad9f8ee89a0f76b7a27bb075997467c80de6b0d04ae580c7dc10ed",
+  "requestCount": 3,
+  "finishedAt": "2026-10-18T11:02:43.535Z",
+  "passed": false,
+  "verification": {
+    "authenticatedGroq": true,
+    "modelSelection": true,
+    "creativeContract": false,
+    "humanLockPreserved": true,
+    "realQloo": false,
+    "venueFacts": false
+  }
+}

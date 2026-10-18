@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "fieldwork.groq-validation.v2",
+  "startedAt": "2026-10-18T10:49:02.444Z",
+  "transport": "live",
+  "model": "openai/gpt-oss-20b",
+  "syntheticCandidates": true,
+  "liveQlooVerified": false,
+  "qlooRequests": 0,
+  "requestBudget": 2,
+  "requests": [
+    {
+      "index": 1,
+      "httpStatus": 200,
+      "durationMs": 537,
+      "strictSchemaRequested": true,
+      "requestedMaxTokens": 1300
+    },
+    {
+      "index": 2,
+      "httpStatus": 200,
+      "durationMs": 547,
+      "strictSchemaRequested": true,
+      "requestedMaxTokens": 1300
+    }
+  ],
+  "checks": [
+    {
+      "id": "ready-with-two-treatments",
+      "passed": true
+    },
+    {
+      "id": "two-model-actions-without-policy-fallback",
+      "passed": true
+    },
+    {
+      "id": "fixture-source-preserved",
+      "passed": true
+    },
+    {
+      "id": "two-valid-model-proposals",
+      "passed": true
+    },
+    {
+      "id": "proposal-action-form-not-factual-verification",
+      "passed": true
+    },
+    {
+      "id": "different-creative-directions",
+      "passed": true
+    },
+    {
+      "id": "strict-structured-output-requested",
+      "passed": true
+    },
+    {
+      "id": "maximum-two-requests",
+      "passed": true
+    }
+  ],
+  "scope": "Authenticated Groq planner with fictional FixtureProvider candidates and a public-reference brief. This does not verify real Qloo data, venue conditions or public hosting.",
+  "storage": "Only checks, counts, fixed metadata and a normalized-output hash are retained. No credential, prompt, raw provider response, creative text or private model reasoning is stored.",
+  "creativeFailureCodes": [],
+  "outputSha256": "324f9c0e6a283610d9258013c83edbddef32b211426c07a471559a2daa130a69",
+  "requestCount": 2,
+  "finishedAt": "2026-10-18T10:49:03.534Z",
+  "durationMs": 1090,
+  "passed": true,
+  "verification": {
+    "authenticatedGroq": true,
+    "modelSelection": true,
+    "creativeContract": true,
+    "realQloo": false,
+    "venueFacts": false
+  },
+  "liveGroqVerified": true,
+  "tokenMargin": {
+    "method": "UTF-8 bytes / 2 plus maximum completion tokens, an estimate rather than an exact tokenizer count.",
+    "configuredTokensPerMinute": 8000,
+    "requests": [
+      {
+        "estimatedTokenReservation": 4045,
+        "reportedRemainingTokens": 6682
+      },
+      {
+        "estimatedTokenReservation": 4805,
+        "reportedRemainingTokens": 5147
+      }
+    ]
+  }
+}

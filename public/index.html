@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#efede6" />
+    <meta
+      name="description"
+      content="Fieldwork turns cultural references into an evidence-led location shortlist and an editable shoot brief."
+    />
+    <title>FIELDWORK · From feeling to field.</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a href="#workspace" class="skip-link">Skip to workspace</a>
+    <header class="masthead">
+      <a href="/" class="wordmark" aria-label="Fieldwork home"
+        ><span class="brand-symbol" aria-hidden="true">⌑</span> FIELDWORK<span
+          class="brand-dot"
+          aria-hidden="true"
+          >●</span
+        ></a
+      >
+      <span class="masthead-caption">A CULTURAL SCOUTING STUDIO</span>
+      <nav aria-label="Workspace sections">
+        <a href="#workspace" class="nav-active">The studio</a
+        ><button type="button" id="open-brief-nav">
+          Shoot brief <span aria-hidden="true">↗</span>
+        </button>
+      </nav>
+    </header>
+
+    <main id="workspace">
+      <section class="opening" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">
+            <span class="red-dot"></span> RESEARCH FIRST. MAKE IT YOURS.
+          </p>
+          <h1 id="page-title">From feeling <br />to <em>field.</em></h1>
+        </div>
+        <div class="opening-note">
+          <span class="note-index">01 / THE CREATIVE DIRECTION</span>
+          <p>
+            A film. A record. A point of view.<br />Find the places that connect
+            them.
+          </p>
+          <a href="#field-notes"
+            >Start with your references <span aria-hidden="true">↙</span></a
+          >
+        </div>
+        <span class="opening-rule" aria-hidden="true"></span>
+      </section>
+
+      <div class="workspace-grid">
+        <aside class="field-notes" id="field-notes" aria-label="Creative brief">
+          <div class="section-heading">
+            <span class="eyebrow">YOUR FIELD NOTES</span
+            ><span aria-hidden="true">✳</span>
+          </div>
+          <button
+            type="button"
+            class="text-link choose-brief-link"
+            id="choose-brief"
+            disabled
+          >
+            Try another brief ↗
+          </button>
+          <form id="brief-form">
+            <label class="field-label" for="project-name">Working title</label>
+            <textarea
+              id="project-name"
+              name="title"
+              class="title-input"
+              rows="2"
+              maxlength="80"
+              autocomplete="off"
+            >
+After the rain</textarea
+            >
+            <div class="field-pair">
+              <div>
+                <label class="field-label" for="city">Scout in</label
+                ><input
+                  id="city"
+                  name="city"
+                  list="cities"
+                  value="Barcelona"
+                  maxlength="80"
+                  autocomplete="off"
+                /><datalist id="cities">
+                  <option value="Barcelona"></option>
+                  <option value="London"></option>
+                  <option value="New York"></option>
+                  <option value="Madrid"></option>
+                  <option value="Lisbon"></option>
+                </datalist>
+              </div>
+              <div>
+                <label class="field-label" for="data-mode">Data</label
+                ><select id="data-mode" name="dataMode">
+                  <option value="fixture">Sample</option>
+                  <option value="live">Qloo live</option>
+                </select>
+              </div>
+            </div>
+            <div class="reference-heading">
+              <label class="field-label" for="reference-0"
+                >Cultural references</label
+              ><button
+                type="button"
+                class="text-link info-link"
+                id="references-help"
+                aria-label="How cultural references work"
+              >
+                ?
+              </button>
+            </div>
+            <p class="field-hint">
+              Real things your client loves. Three starting points, one shared
+              direction.
+            </p>
+            <div id="reference-fields" class="reference-fields"></div>
+            <button
+              type="button"
+              class="text-link apply-reference-button"
+              id="apply-references"
+              hidden
+            >
+              Update references, keep directions ↗
+            </button>
+            <label class="field-label" for="creative-intent"
+              >What are we making?</label
+            >
+            <textarea
+              id="creative-intent"
+              name="intent"
+              rows="3"
+              maxlength="600"
+            >
+An intimate portrait series. Reflective, unhurried, quietly cinematic.</textarea
+            >
+            <input
+              id="shoot-style"
+              name="style"
+              type="hidden"
+              value="editorial_portrait"
+            />
+            <p class="format-label">
+              <span class="field-label">THE FORMAT</span>Editorial portrait
+              study
+            </p>
+            <button
+              class="button button-primary"
+              id="generate-button"
+              type="submit"
+            >
+              <span>Find my direction</span><span aria-hidden="true">↗</span>
+            </button>
+            <p class="form-footnote">
+              A shortlist to scout. Access, light and permissions are yours to
+              verify.
+            </p>
+          </form>
+          <div id="connection-status" class="connection-status">
+            <span class="status-dot"></span
+            ><span>Checking data connection</span>
+          </div>
+          <p id="data-use-note" class="privacy-note data-use-note" hidden></p>
+        </aside>
+
+        <section class="work-surface" aria-label="Scouting results">
+          <div class="surface-toolbar">
+            <span class="eyebrow">THE LOCATION STUDY</span>
+            <div>
+              <span id="saved-state">NOT YET SCOUTED</span
+              ><button
+                type="button"
+                class="icon-button"
+                id="reset-session"
+                aria-label="Reset workspace"
+                title="Reset workspace"
+              >
+                ↺
+              </button>
+            </div>
+          </div>
+          <div id="global-message" class="message" role="status" hidden></div>
+          <div id="study-output" aria-live="polite"></div>
+        </section>
+      </div>
+
+      <section
+        class="journal-section"
+        id="decision-journal"
+        aria-labelledby="journal-title"
+      >
+        <div>
+          <p class="eyebrow">WORK THAT LEAVES A TRACE</p>
+          <h2 id="journal-title">The decisions <br />behind the direction.</h2>
+          <p class="journal-intro">
+            Keep what matters. Challenge the first answer. Leave a useful trail
+            for whoever picks up the brief.
+          </p>
+        </div>
+        <ol id="journal-list" class="journal-list">
+          <li>
+            <span class="journal-number">00</span>
+            <div>
+              <strong>A blank page is a good start.</strong>
+              <p>Your scouting decisions will appear here.</p>
+            </div>
+            <time>NOW</time>
+          </li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span class="wordmark footer-brand"
+        >FIELDWORK<span class="brand-dot" aria-hidden="true">●</span></span
+      >
+      <p>Good places. A reason to be there.</p>
+      <span class="eyebrow">A WORKING STUDY / 2026</span>
+    </footer>
+
+    <dialog
+      id="detail-dialog"
+      class="detail-dialog"
+      aria-labelledby="dialog-title"
+    >
+      <div class="dialog-shell">
+        <div class="dialog-topline">
+          <span id="dialog-eyebrow" class="eyebrow">FIELDWORK / NOTES</span
+          ><button
+            id="close-dialog"
+            class="icon-button"
+            type="button"
+            aria-label="Close dialog"
+          >
+            ×
+          </button>
+        </div>
+        <div id="dialog-content"></div>
+      </div>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

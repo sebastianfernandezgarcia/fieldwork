@@ -1,0 +1,35 @@
+# PREPARATION ONLY. No service has been created from this file.
+# For a dedicated, audited FIELDWORK repository with this app at its root.
+# Select this Blueprint path explicitly, or copy it to render.yaml in that repo.
+# Verify Render workspace has no payment method before use. Do not upgrade.
+# Groq support and live end-to-end validation are release gates, not implied here.
+services:
+  - type: web
+    name: fieldwork-demo
+    runtime: node
+    plan: free
+    region: frankfurt
+    numInstances: 1
+    autoDeployTrigger: "off"
+    buildCommand: node --check server.mjs
+    startCommand: node server.mjs
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: FIELDWORK_PUBLIC_ORIGIN
+        sync: false
+      - key: QLOO_API_KEY
+        sync: false
+      - key: QLOO_API_BASE_URL
+        sync: false
+      - key: FIELDWORK_PLANNER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-20b

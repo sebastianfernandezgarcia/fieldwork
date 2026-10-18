@@ -1,0 +1,184 @@
+TAP version 13
+# Subtest: sample brief completes two different editable directions without claiming Qloo results
+ok 1 - sample brief completes two different editable directions without claiming Qloo results
+  ---
+  duration_ms: 4.763583
+  type: 'test'
+  ...
+# Subtest: locking the second treatment preserves its slot and content when the first is rejected
+ok 2 - locking the second treatment preserves its slot and content when the first is rejected
+  ---
+  duration_ms: 0.859583
+  type: 'test'
+  ...
+# Subtest: a locked treatment cannot be vetoed and the previous revision remains untouched
+ok 3 - a locked treatment cannot be vetoed and the previous revision remains untouched
+  ---
+  duration_ms: 0.798708
+  type: 'test'
+  ...
+# Subtest: a rejected alternative is excluded even when it was not a selected treatment
+ok 4 - a rejected alternative is excluded even when it was not a selected treatment
+  ---
+  duration_ms: 0.399875
+  type: 'test'
+  ...
+# Subtest: a new cultural reference marks fixed decisions for review and reruns evidence
+ok 5 - a new cultural reference marks fixed decisions for review and reruns evidence
+  ---
+  duration_ms: 0.729083
+  type: 'test'
+  ...
+# Subtest: changing city never presents a locked location as freshly verified
+ok 6 - changing city never presents a locked location as freshly verified
+  ---
+  duration_ms: 0.508042
+  type: 'test'
+  ...
+# Subtest: ambiguous titles pause and can be resolved by an actual returned entity ID
+ok 7 - ambiguous titles pause and can be resolved by an actual returned entity ID
+  ---
+  duration_ms: 0.244459
+  type: 'test'
+  ...
+# Subtest: unsupported or forged reference identity is never accepted
+ok 8 - unsupported or forged reference identity is never accepted
+  ---
+  duration_ms: 0.075625
+  type: 'test'
+  ...
+# Subtest: a changed ambiguous reference clears old suggestions while preserving locked history as needing review
+ok 9 - a changed ambiguous reference clears old suggestions while preserving locked history as needing review
+  ---
+  duration_ms: 0.4005
+  type: 'test'
+  ...
+# Subtest: validated photographer edits survive a canonical revision without accepting evidence fields
+ok 10 - validated photographer edits survive a canonical revision without accepting evidence fields
+  ---
+  duration_ms: 0.304375
+  type: 'test'
+  ...
+# Subtest: insufficient coverage changes the tool plan and relaxes only the soft category
+ok 11 - insufficient coverage changes the tool plan and relaxes only the soft category
+  ---
+  duration_ms: 0.170416
+  type: 'test'
+  ...
+# Subtest: even after relaxation zero coverage is explicit and no venue is invented
+ok 12 - even after relaxation zero coverage is explicit and no venue is invented
+  ---
+  duration_ms: 0.103583
+  type: 'test'
+  ...
+# Subtest: baseline compares the same live candidates without turning scores into probabilities
+ok 13 - baseline compares the same live candidates without turning scores into probabilities
+  ---
+  duration_ms: 0.14875
+  type: 'test'
+  ...
+# Subtest: a failed local model is reported as actual policy execution, not local LLM execution
+ok 14 - a failed local model is reported as actual policy execution, not local LLM execution
+  ---
+  duration_ms: 0.493208
+  type: 'test'
+  ...
+# Subtest: local planner receives observed candidates and a validated choice changes selected treatments
+ok 15 - local planner receives observed candidates and a validated choice changes selected treatments
+  ---
+  duration_ms: 18.9285
+  type: 'test'
+  ...
+# Subtest: an invented model-selected candidate falls back visibly instead of entering the brief
+ok 16 - an invented model-selected candidate falls back visibly instead of entering the brief
+  ---
+  duration_ms: 0.417542
+  type: 'test'
+  ...
+# Subtest: live mode requires its own server credential and rejects arbitrary credential destinations
+ok 17 - live mode requires its own server credential and rejects arbitrary credential destinations
+  ---
+  duration_ms: 1.315042
+  type: 'test'
+  ...
+# Subtest: Qloo adapter sends real documented query keys and normalizes sparse results
+ok 18 - Qloo adapter sends real documented query keys and normalizes sparse results
+  ---
+  duration_ms: 23.904208
+  type: 'test'
+  ...
+# Subtest: search uses plural types and accepts the raw search array shape
+ok 19 - search uses plural types and accepts the raw search array shape
+  ---
+  duration_ms: 0.303416
+  type: 'test'
+  ...
+# Subtest: upstream errors never expose response bodies or credentials
+ok 20 - upstream errors never expose response bodies or credentials
+  ---
+  duration_ms: 0.335958
+  type: 'test'
+  ...
+# Subtest: timeout and request budgets fail visibly without alternate endpoints or sample fallback
+ok 21 - timeout and request budgets fail visibly without alternate endpoints or sample fallback
+  ---
+  duration_ms: 0.244583
+  type: 'test'
+  ...
+# Subtest: an upstream response that echoes the server key is withheld even when otherwise valid JSON
+ok 22 - an upstream response that echoes the server key is withheld even when otherwise valid JSON
+  ---
+  duration_ms: 0.166167
+  type: 'test'
+  ...
+# Subtest: server ignores forged candidate/provenance data and enforces canonical revision
+ok 23 - server ignores forged candidate/provenance data and enforces canonical revision
+  ---
+  duration_ms: 21.578292
+  type: 'test'
+  ...
+# Subtest: missing live credentials fail explicitly and never return sample candidates
+ok 24 - missing live credentials fail explicitly and never return sample candidates
+  ---
+  duration_ms: 4.029375
+  type: 'test'
+  ...
+# Subtest: state retrieval and JSON export retain the exact canonical revision
+ok 25 - state retrieval and JSON export retain the exact canonical revision
+  ---
+  duration_ms: 3.687167
+  type: 'test'
+  ...
+# Subtest: cross-origin actions and DNS rebinding Host headers are rejected
+ok 26 - cross-origin actions and DNS rebinding Host headers are rejected
+  ---
+  duration_ms: 2.983375
+  type: 'test'
+  ...
+# Subtest: input limits reject large prompts and excess references before any provider call
+ok 27 - input limits reject large prompts and excess references before any provider call
+  ---
+  duration_ms: 4.770542
+  type: 'test'
+  ...
+# Subtest: canonical briefs survive a server restart in a private local session file
+ok 28 - canonical briefs survive a server restart in a private local session file
+  ---
+  duration_ms: 5.25175
+  type: 'test'
+  ...
+# Subtest: unresolved or stale fixed evidence cannot be exported as a current brief
+ok 29 - unresolved or stale fixed evidence cannot be exported as a current brief
+  ---
+  duration_ms: 2.09625
+  type: 'test'
+  ...
+1..29
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 133.263333
