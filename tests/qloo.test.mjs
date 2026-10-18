@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { QlooProvider } from '../lib/qloo.mjs';
 import { publicError } from '../lib/errors.mjs';
 import { createRequestBudget } from '../lib/request-budget.mjs';
+import { rehearse } from '../lib/engine.mjs';
 
 test('live mode requires its own server credential and rejects arbitrary credential destinations', () => {
   assert.throws(() => new QlooProvider(), { code: 'QLOO_NOT_CONFIGURED' });
@@ -40,6 +41,76 @@ test('search uses plural types and accepts the raw search array shape', async ()
   const results = await qloo.search('Paterson', 'movie');
   assert.equal(requestUrl.searchParams.get('types'), 'urn:entity:movie');
   assert.equal(results[0].id, 'real-id');
+});
+
+test('documented search 404 pauses for another reference without discovering places', async () => {
+  const paths = [];
+  const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async url => {
+    paths.push(new URL(url).pathname);
+    return new Response('private diagnostics test-secret', { status: 404 });
+  } });
+  const state = await rehearse({ dataMode: 'live', brief: {
+    city: 'Barcelona', references: [{ query: 'An unmatched synthetic movie', domain: 'movie' }], placeKinds: ['gallery'],
+  } }, { provider: qloo });
+  assert.equal(state.status, 'needs_input');
+  assert.equal(state.resolutionIssues.length, 1);
+  assert.deepEqual(state.resolutionIssues[0].candidates, []);
+  assert.deepEqual(state.candidates, []);
+  assert.deepEqual(paths, ['/search']);
+  assert.equal(qloo.requestCount, 1);
+  assert.ok(!JSON.stringify(state).includes('test-secret'));
+});
+
+test('404 from tags or insights remains an upstream error, not an empty successful search', async () => {
+  const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => new Response('private diagnostics', { status: 404 }) });
+  await assert.rejects(qloo.findTags('gallery'), { code: 'QLOO_UPSTREAM' });
+  await assert.rejects(qloo.discover({ brief: { city: 'Barcelona', avoidEntityIds: [] }, references: [{ id: 'synthetic-reference' }] }), { code: 'QLOO_UPSTREAM' });
+});
+
+test('tag resolution accepts both documented identifier shapes and preserves the semantic-search query', async t => {
+  for (const key of ['id', 'tag_id']) await t.test(key, async () => {
+    let request;
+    const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async url => {
+      request = new URL(url);
+      return Response.json({ results: { tags: [{ [key]: 'synthetic-tag-gallery', name: 'Gallery' }] } });
+    } });
+    assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'synthetic-tag-gallery', name: 'Gallery', source: 'qloo' }]);
+    assert.equal(request.pathname, '/v2/tags');
+    assert.equal(request.searchParams.get('filter.query'), 'gallery');
+    assert.equal(request.searchParams.get('feature.semantic_search'), 'true');
+    assert.equal(request.searchParams.get('take'), '5');
+  });
+});
+
+test('tag parents select a unique place category instead of an identically named media category', async () => {
+  const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => Response.json({ results: { tags: [
+    { id: 'synthetic-media', name: 'Gallery', parents: [{ type: 'urn:entity:movie' }] },
+    { tag_id: 'synthetic-place', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
+    { id: 'synthetic-unscoped', name: 'Gallery' },
+  ] } }) });
+  assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'synthetic-place', name: 'Gallery', source: 'qloo' }]);
+});
+
+test('ambiguous, wrong-parent and only-semantic tags remain unconfirmed preferences', async t => {
+  const cases = [
+    { name: 'ambiguous exact place names', tags: [
+      { id: 'synthetic-one', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
+      { tag_id: 'synthetic-two', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
+    ] },
+    { name: 'known non-place parent', tags: [{ id: 'synthetic-media', name: 'Gallery', parents: [{ type: 'urn:entity:movie' }] }] },
+    { name: 'only a related name', tags: [{ id: 'synthetic-related', name: 'Art museum' }] },
+  ];
+  for (const item of cases) await t.test(item.name, async () => {
+    const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => Response.json({ results: { tags: item.tags } }) });
+    assert.deepEqual(await qloo.findTags('gallery'), []);
+  });
+});
+
+test('duplicate records for one exact tag ID do not create false ambiguity', async () => {
+  const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => Response.json({ results: { tags: [
+    { id: 'synthetic-same', name: 'Gallery' }, { tag_id: 'synthetic-same', name: 'Gallery' },
+  ] } }) });
+  assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'synthetic-same', name: 'Gallery', source: 'qloo' }]);
 });
 
 test('upstream errors never expose response bodies or credentials', async () => {

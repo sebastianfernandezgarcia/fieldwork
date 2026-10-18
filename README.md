@@ -38,6 +38,8 @@ Keep `QLOO_API_KEY` in a server environment variable or your host's secret manag
 
 Select live data explicitly. Authentication, quota and timeout errors stop the run; sample results never silently replace Qloo. The adapter uses Search, Tags and Insights, confirming identities and category matches before sending their IDs to later requests.
 
+Qloo Search represents an unmatched reference with HTTP 404; FIELDWORK asks for another reference without inventing a match. Category tags accept both official identifier shapes, respect place-type metadata when supplied and require one unambiguous exact match. Unconfirmed categories remain creative preferences. These compatibility paths are tested offline; they are not proof of authenticated Qloo access.
+
 Qloo supplies aggregate cultural affinity. FIELDWORK does not claim that Qloo analyses a photo, understands a venue's light, predicts satisfaction or verifies permission. Scores stay raw. The comparison ranks the same candidates by taste and popularity; a ranking difference does not prove a better result.
 
 ## Optional local model
