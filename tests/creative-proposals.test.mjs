@@ -103,6 +103,33 @@ test('an observed extra proposal for a locked candidate cannot rewrite the accep
   assert.ok(!JSON.stringify(revised.treatments).includes('Unrequested rewrite'));
 });
 
+test('the observed 102-character tagline is rejected without changing a fixed treatment or relaxing the 100-character limit', async () => {
+  const first = await rehearse({ exampleId: 'quiet-city' }, { planner: proposalPlanner() });
+  const locked = await revise(first, { type: 'lock', targetId: first.treatments[0].id });
+  const fixed = structuredClone(locked.treatments[0]);
+  for (const length of [100, 102]) {
+    const tagline = 'A'.repeat(length);
+    const revised = await revise(locked, { type: 'veto', targetId: locked.treatments[1].id }, {
+      planner: proposalPlanner(proposals => proposals.map(proposal => ({ ...proposal, tagline })))
+    });
+    assert.deepEqual(revised.treatments[0], fixed);
+    assert.equal(revised.provenance.planner, 'groq');
+    assert.equal(revised.provenance.policyActions, 0);
+    const replacement = revised.treatments[1];
+    assert.notEqual(replacement.candidateId, locked.treatments[1].candidateId);
+    if (length === 100) {
+      assert.equal(replacement.editorial.source, 'model-proposed');
+      assert.equal(replacement.tagline, tagline);
+      assert.equal(replacement.editorial.fallbackCode, undefined);
+    } else {
+      assert.equal(replacement.editorial.source, 'authored-template');
+      assert.equal(replacement.editorial.fallbackCode, 'CREATIVE_TEXT_LIMIT');
+      assert.equal(revised.trace.at(-1).creativeFailureCode, 'CREATIVE_TEXT_LIMIT');
+      assert.notEqual(replacement.tagline, tagline.slice(0, 100));
+    }
+  }
+});
+
 test('a successful new scout clears stale provider warnings while preserving fixture limits and failure history', async () => {
   const failed = await rehearse({ exampleId: 'quiet-city' }, {
     planner: createGroqPlanner({ apiKey: 'test-only-credential', fetchImpl: async () => new Response('', { status: 503 }) })

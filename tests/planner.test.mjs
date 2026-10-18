@@ -65,6 +65,8 @@ test('Groq may select observed candidates in a different order while preserving 
   assert.equal(request.response_format.json_schema.strict, true);
   assert.ok(properties.candidateIds.items.enum.includes('a'));
   assert.deepEqual(properties.creativeProposals.items.properties.candidateId.enum, ['b', 'c']);
+  assert.match(properties.creativeProposals.items.properties.tagline.description, /5–9 words.*70 characters.*100/);
+  assert.match(request.messages[0].content, /tagline \(5–9 words, target max 70 characters, hard max 100/);
   const observation = JSON.parse(request.messages[1].content);
   assert.equal(observation.expectedCreativeProposalCount, 1);
   assert.deepEqual(observation.creativeCandidateIds, ['b', 'c']);
