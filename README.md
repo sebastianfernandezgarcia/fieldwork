@@ -2,7 +2,11 @@
 
 Turn cultural references into an editorial location brief you can explain, revise and take on a scout. FIELDWORK helps an independent photographer compare two directions, preserve an agreed treatment and replace a rejected place without losing the rest of the work.
 
-**Current status:** local working prototype. Authenticated Groq checks have completed an initial scout and a browser-driven replacement using fictional candidates. The replacement preserved the accepted treatment, respected both vetoes and produced a validated new creative proposal. Earlier failed creative responses remain documented below. Real Qloo integration remains unverified: an event credential and live end-to-end run are still required. A public demo has not been deployed.
+**Current status:** the [public Sample demo](https://fieldwork-demo.onrender.com/) is deployed on Render Free, with server-side Groq and fictional candidate places. The [source](https://github.com/sebastianfernandezgarcia/fieldwork) is public under MIT. Qloo access is still pending; real Qloo authentication and two live briefs remain unverified.
+
+The public browser test generated two model proposals on one scout, preserved a kept treatment and an edited shot during a veto, and downloaded the edits in Markdown and JSON. The first scout and the later veto also exposed intermittent `GROQ_UPSTREAM` failures, with an explicit policy fallback. Their cause is not yet established. HTTP failures now expose only bounded status and allowlisted diagnostic tokens; provider bodies and messages remain private. This improves diagnosis, not model reliability by itself.
+
+Free hosting can sleep when inactive and take time to wake. Its local session storage is temporary. Download your brief to retain a copy.
 
 ## Run locally
 

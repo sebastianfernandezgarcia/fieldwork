@@ -134,6 +134,7 @@ test('upstream failures stay sanitized and do not retry during the same scout', 
     const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => { count++; return new Response(`private data ${KEY}`, { status }); } });
     const first = await planner.choose(context());
     assert.equal(first.fallbackCode, `GROQ_${code}`);
+    assert.ok(first.fallbackDetailCodes.includes(`HTTP_${status}`));
     assert.match(first.fallback, /explicit bounded policy/);
     assert.equal(JSON.stringify(first).includes(KEY), false);
     await planner.choose(context());
@@ -141,6 +142,53 @@ test('upstream failures stay sanitized and do not retry during the same scout', 
   });
   const timeout = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => { throw new DOMException(`private ${KEY}`, 'TimeoutError'); } });
   assert.equal((await timeout.choose(context())).fallbackCode, 'GROQ_TIMEOUT');
+});
+
+test('failed selection exposes only bounded HTTP and allowlisted provider diagnostics in the existing trace', async () => {
+  let calls = 0;
+  const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => {
+    if (++calls === 1) return response();
+    return Response.json({ error: { type: 'invalid_request_error', code: 'json_validate_failed', message: 'PRIVATE_PROVIDER_TEXT', failed_generation: { private: 'PRIVATE_GENERATION_TEXT' } } }, { status: 400, headers: { 'x-private': 'PRIVATE_HEADER' } });
+  } });
+  const state = await rehearse({ exampleId: 'quiet-city' }, { planner });
+  assert.equal(state.provenance.modelActions, 1);
+  assert.equal(state.provenance.policyActions, 1);
+  const failed = state.trace.find(t => t.fallbackCode === 'GROQ_UPSTREAM');
+  assert.match(failed.outputSummary, /HTTP_400, PROVIDER_INVALID_REQUEST, PROVIDER_JSON_VALIDATE_FAILED/);
+  for (const secret of [KEY, 'PRIVATE_PROVIDER_TEXT', 'PRIVATE_GENERATION_TEXT', 'PRIVATE_HEADER']) assert.equal(JSON.stringify(state).includes(secret), false);
+  const latched = await planner.choose(selection());
+  assert.deepEqual(latched.fallbackDetailCodes, ['HTTP_400', 'PROVIDER_INVALID_REQUEST', 'PROVIDER_JSON_VALIDATE_FAILED']);
+  assert.equal(calls, 2);
+});
+
+test('unknown, secret-bearing and oversized provider diagnostics cannot become public text', async t => {
+  const cases = [
+    { name: 'unknown fields', body: JSON.stringify({ error: { type: 'PRIVATE_TYPE', code: 'PRIVATE_CODE', message: 'PRIVATE_MESSAGE' } }), expected: ['HTTP_500', 'PROVIDER_TYPE_UNRECOGNIZED', 'PROVIDER_CODE_UNRECOGNIZED'] },
+    { name: 'credential echo', body: JSON.stringify({ error: { code: KEY } }), expected: ['HTTP_500', 'PROVIDER_BODY_WITHHELD'] },
+    { name: 'oversized body', body: JSON.stringify({ error: { message: 'x'.repeat(4097), type: 'server_error' } }), expected: ['HTTP_500'] }
+  ];
+  for (const item of cases) await t.test(item.name, async () => {
+    const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => new Response(item.body, { status: 500 }) });
+    const result = await planner.choose(context());
+    assert.equal(result.fallbackCode, 'GROQ_UPSTREAM');
+    assert.deepEqual(result.fallbackDetailCodes, item.expected);
+    for (const secret of [KEY, 'PRIVATE_TYPE', 'PRIVATE_CODE', 'PRIVATE_MESSAGE']) assert.equal(JSON.stringify(result).includes(secret), false);
+  });
+});
+
+test('network causes use fixed diagnostic tokens without exposing exception text or retrying', async () => {
+  let calls = 0;
+  const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => {
+    calls++;
+    throw new TypeError(`private ${KEY}`, { cause: { code: 'ECONNRESET', message: 'PRIVATE_NETWORK_TEXT' } });
+  } });
+  const result = await planner.choose(context());
+  assert.equal(result.fallbackCode, 'GROQ_UPSTREAM');
+  assert.deepEqual(result.fallbackDetailCodes, ['NETWORK_RESET']);
+  assert.equal(JSON.stringify(result).includes(KEY), false);
+  assert.equal(JSON.stringify(result).includes('PRIVATE_NETWORK_TEXT'), false);
+  await planner.choose(context());
+  assert.equal(calls, 1);
 });
 
 test('oversized, truncated, refused, malformed or secret-bearing responses are rejected', async t => {
