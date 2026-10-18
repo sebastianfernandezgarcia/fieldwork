@@ -155,9 +155,12 @@ test('failed selection exposes only bounded HTTP and allowlisted provider diagno
   assert.equal(state.provenance.policyActions, 1);
   const failed = state.trace.find(t => t.fallbackCode === 'GROQ_UPSTREAM');
   assert.match(failed.outputSummary, /HTTP_400, PROVIDER_INVALID_REQUEST, PROVIDER_JSON_VALIDATE_FAILED/);
+  assert.ok(state.warnings.some(w => w.includes('Groq could not complete the request')));
+  assert.ok(state.warnings.every(w => !w.includes('HTTP_400') && !w.includes('PROVIDER_')));
   for (const secret of [KEY, 'PRIVATE_PROVIDER_TEXT', 'PRIVATE_GENERATION_TEXT', 'PRIVATE_HEADER']) assert.equal(JSON.stringify(state).includes(secret), false);
   const latched = await planner.choose(selection());
   assert.deepEqual(latched.fallbackDetailCodes, ['HTTP_400', 'PROVIDER_INVALID_REQUEST', 'PROVIDER_JSON_VALIDATE_FAILED']);
+  assert.ok(!latched.fallback.includes('HTTP_400'));
   assert.equal(calls, 2);
 });
 
