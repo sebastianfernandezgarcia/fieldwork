@@ -23,7 +23,7 @@ function proposalPlanner(mutate = value => value) {
         { label: '03 / Resolve', note: 'Finish with a close portrait, then review the sequence with the subject.' }
       ]
     }));
-    const action = discovering ? { action: 'discover_places', usePreferences: true } : { action: 'select_treatments', usePreferences: false, candidateIds, creativeProposals: mutate(creativeProposals) };
+    const action = discovering ? { action: 'discover_places', usePreferences: true } : { action: 'select_treatments', candidateIds, creativeProposals: mutate(creativeProposals) };
     return new Response(JSON.stringify({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(action) } }] }));
   } });
 }

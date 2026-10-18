@@ -54,12 +54,15 @@ test('Groq may select observed candidates in a different order while preserving 
   let request;
   const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async (_url, options) => {
     request = JSON.parse(options.body);
-    return response({ action: 'select_treatments', usePreferences: false, candidateIds: ['c', 'a'] });
+    return response({ action: 'select_treatments', candidateIds: ['c', 'a'] });
   } });
   const result = await planner.choose(selection());
   assert.equal(result.planner, 'groq');
   assert.deepEqual(result.candidateIds, ['c', 'a']);
   const properties = request.response_format.json_schema.schema.properties;
+  assert.equal(properties.usePreferences, undefined);
+  assert.deepEqual(request.response_format.json_schema.schema.required, ['action', 'candidateIds', 'creativeProposals']);
+  assert.equal(request.response_format.json_schema.strict, true);
   assert.ok(properties.candidateIds.items.enum.includes('a'));
   assert.deepEqual(properties.creativeProposals.items.properties.candidateId.enum, ['b', 'c']);
   const observation = JSON.parse(request.messages[1].content);
@@ -85,17 +88,33 @@ test('discovery with a fixed choice requests empty action arguments without aski
   assert.equal((await invalid.choose(context({ candidates: [{ id: 'fixed', kind: 'gallery' }], lockedIds: ['fixed'] }))).fallbackCode, 'GROQ_CONTRACT');
 });
 
+test('usePreferences is required only for discovery, and relaxation keeps its selection arrays empty', async () => {
+  const missingDiscoveryFlag = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => response({ action: 'discover_places' }) });
+  assert.equal((await missingDiscoveryFlag.choose(context())).fallbackCode, 'GROQ_CONTRACT');
+  let schema;
+  const relaxation = createGroqPlanner({ apiKey: KEY, fetchImpl: async (_url, options) => {
+    schema = JSON.parse(options.body).response_format.json_schema.schema;
+    return response({ action: 'relax_preferences', candidateIds: [], creativeProposals: [] });
+  } });
+  const result = await relaxation.choose(selection({ available: ['relax_preferences'] }));
+  assert.equal(result.planner, 'groq');
+  assert.equal(result.action, 'relax_preferences');
+  assert.equal(schema.properties.usePreferences, undefined);
+  assert.deepEqual(schema.required, ['action', 'candidateIds', 'creativeProposals']);
+  assert.equal(schema.additionalProperties, false);
+});
+
 test('invalid, injected, invented and lock-breaking actions cannot enter the brief', async t => {
   const badActions = [
-    { action: 'select_treatments', usePreferences: false, candidateIds: ['a', 'invented'] },
-    { action: 'select_treatments', usePreferences: false, candidateIds: ['b', 'c'] },
-    { action: 'select_treatments', usePreferences: false, candidateIds: ['a', 'a'] },
-    { action: 'select_treatments', usePreferences: false, candidateIds: ['a'] },
-    { action: 'select_treatments', usePreferences: false, candidateIds: ['a', 'b', 'c'] },
-    { action: 'select_treatments', usePreferences: 'false', candidateIds: ['a', 'b'] },
-    { action: 'select_treatments', usePreferences: false, candidateIds: ['a', 'b'], secret: KEY },
-    { action: 'fetch_url', usePreferences: false, candidateIds: [] },
-    { action: 'relax_preferences', usePreferences: false, candidateIds: ['a'] },
+    { action: 'select_treatments', candidateIds: ['a', 'invented'] },
+    { action: 'select_treatments', candidateIds: ['b', 'c'] },
+    { action: 'select_treatments', candidateIds: ['a', 'a'] },
+    { action: 'select_treatments', candidateIds: ['a'] },
+    { action: 'select_treatments', candidateIds: ['a', 'b', 'c'] },
+    { action: 'select_treatments', usePreferences: false, candidateIds: ['a', 'b'] },
+    { action: 'select_treatments', candidateIds: ['a', 'b'], secret: KEY },
+    { action: 'fetch_url', candidateIds: [] },
+    { action: 'relax_preferences', candidateIds: ['a'] },
     null
   ];
   for (const [index, action] of badActions.entries()) await t.test(`invalid action ${index + 1}`, async () => {
@@ -227,7 +246,7 @@ test('engine provenance distinguishes Groq actions, mixed execution and complete
     const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async (_url, options) => {
       const observation = JSON.parse(JSON.parse(options.body).messages[1].content);
       if (variant === 'policy' || variant === 'mixed' && observation.candidates.length) return new Response('unavailable', { status: 503 });
-      return response(observation.availableTools.includes('discover_places') ? discovery : { action: 'select_treatments', usePreferences: false, candidateIds: observation.candidates.slice(-2).map(c => c.id) });
+      return response(observation.availableTools.includes('discover_places') ? discovery : { action: 'select_treatments', candidateIds: observation.candidates.slice(-2).map(c => c.id) });
     } });
     const state = await rehearse({ exampleId: 'quiet-city' }, { planner });
     assert.equal(state.provenance.configuredPlanner, 'groq');

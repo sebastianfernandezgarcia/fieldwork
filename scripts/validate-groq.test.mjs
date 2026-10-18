@@ -21,7 +21,7 @@ function simulatedGroq({ failureStatus, echoCredential = false, invalidProposals
       const discovery = observation.availableTools.includes('discover_places');
       const ids = discovery ? [] : observation.candidates.slice(0, 2).map(c => c.id);
       const decision = {
-        action: discovery ? 'discover_places' : 'select_treatments', usePreferences: false, candidateIds: ids,
+        action: 'select_treatments', candidateIds: ids,
         creativeProposals: invalidProposals ? [] : ids.map((candidateId, index) => ({
           candidateId, title: `Synthetic direction ${index + 1}`, tagline: `Try sequence ${index + 1}.`,
           premise: `Propose gesture ${index + 1} for the test musician. Confirm feasibility on the scout.`,
