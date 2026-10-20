@@ -20,7 +20,7 @@ function simulator({ authFailure = false, ambiguous = false, injectSecret = fals
       const entity = { entity_id: `ref-${calls.length}`, name, subtype: url.searchParams.get('types') };
       return Response.json({ results: ambiguous ? [entity, { ...entity, entity_id: `other-${calls.length}` }] : [entity] });
     }
-    if (url.pathname === '/v2/tags') return Response.json({ results: { tags: [{ id: `tag:${url.searchParams.get('filter.query')}`, name: url.searchParams.get('filter.query') }] } });
+    if (url.pathname === '/v2/tags') return Response.json({ results: { tags: [{ id: `urn:tag:genre:place:${url.searchParams.get('filter.query').replaceAll(' ', '_')}`, name: url.searchParams.get('filter.query') }] } });
     if (url.pathname === '/v2/insights') {
       const city = url.searchParams.get('filter.location.query');
       const excluded = new Set((url.searchParams.get('filter.exclude.entities') || '').split(','));
