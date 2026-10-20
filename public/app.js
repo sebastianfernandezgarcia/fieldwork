@@ -394,6 +394,21 @@ function readBrief() {
     })),
   };
 }
+function readScoutingBrief() {
+  const brief = readBrief();
+  const belongsToMode = (id) =>
+    typeof id === "string" && id.startsWith("sample:") === (app.dataMode === "fixture");
+  return {
+    ...brief,
+    // Sample IDs and Qloo IDs belong to separate provider namespaces.
+    avoidEntityIds: brief.avoidEntityIds.filter(belongsToMode),
+    references: brief.references.map((reference) => {
+      if (!reference.entityId || belongsToMode(reference.entityId)) return reference;
+      const { entityId, ...query } = reference;
+      return query;
+    }),
+  };
+}
 function markDirty() {
   persist();
   app.dirty = !!app.run;
@@ -677,7 +692,7 @@ function renderResults() {
 
 async function generate() {
   if (app.busy) return;
-  const brief = readBrief();
+  const brief = readScoutingBrief();
   if (brief.references.some((ref) => !ref.query)) {
     message("Give each cultural reference a name before scouting.", true);
     $$("[data-reference-index]")
@@ -709,6 +724,7 @@ async function generate() {
     app.shots = {};
     app.checks = {};
     app.journal = [];
+    setBrief(run.brief);
     log(
       previous ? "Scouted a new study" : "Started the location study",
       `${run.brief.city} · ${run.resolvedReferences?.length || 0} resolved references · ${run.candidates?.length || 0} candidate places. ${run.dataMode === "fixture" ? "Sample data." : "Qloo live data."}${previous?.locks?.length ? " Previous locks belonged to the previous study." : ""}`,
