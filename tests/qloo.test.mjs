@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { QlooProvider } from '../lib/qloo.mjs';
-import { publicError } from '../lib/errors.mjs';
+import { AppError, publicError } from '../lib/errors.mjs';
 import { createRequestBudget } from '../lib/request-budget.mjs';
 import { rehearse } from '../lib/engine.mjs';
 
@@ -139,6 +139,58 @@ test('upstream errors never expose response bodies or credentials', async () => 
       assert.ok(!JSON.stringify(publicError(error)).includes('test-secret'));
     }
   }
+});
+
+test('failed Qloo requests expose only the fixed operation and HTTP status without reading the error body', async () => {
+  for (const [operation, status, code] of [
+    ['search', 400, 'QLOO_UPSTREAM'], ['tags', 400, 'QLOO_UPSTREAM'],
+    ['insights', 502, 'QLOO_UPSTREAM'], ['search', 401, 'QLOO_AUTH'],
+    ['tags', 429, 'QLOO_RATE_LIMIT'], ['insights', 403, 'QLOO_AUTH']
+  ]) {
+    let bodyReads = 0;
+    const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => {
+      const response = new Response('test-secret private-provider-body', {
+        status, headers: { 'x-private-provider-data': 'private-header' }
+      });
+      response.text = async () => { bodyReads++; throw new Error('The error body must remain unread.'); };
+      return response;
+    } });
+    try {
+      if (operation === 'search') await qloo.search('private-client-query', 'movie');
+      else if (operation === 'tags') await qloo.findTags('private-client-query');
+      else await qloo.discover({ brief: { city: 'private-city-query', avoidEntityIds: [] }, references: [{ id: 'private-reference-id' }] });
+      assert.fail('Expected an upstream failure');
+    } catch (error) {
+      const safe = publicError(error);
+      assert.equal(safe.body.error.code, code);
+      assert.deepEqual(safe.body.error.diagnostic, { provider: 'qloo', operation, httpStatus: status });
+      assert.match(safe.body.error.message, new RegExp(`Qloo ${operation}: HTTP ${status}`));
+      assert.equal(bodyReads, 0);
+      const serialized = JSON.stringify(safe);
+      for (const privateValue of ['test-secret', 'private-', 'https:', '/v2/', '/search']) assert.ok(!serialized.includes(privateValue));
+    }
+  }
+});
+
+test('the public error boundary drops unknown diagnostic fields and rejects untrusted operations or statuses', () => {
+  const safe = () => new AppError('QLOO_UPSTREAM', 'The request could not be completed.', 503);
+  const augmented = safe();
+  augmented.providerDiagnostic = { provider: 'qloo', operation: 'insights', httpStatus: 500, url: 'https://private.example/key', body: 'private-provider-body', headers: { key: 'test-secret' } };
+  assert.deepEqual(publicError(augmented).body.error.diagnostic, { provider: 'qloo', operation: 'insights', httpStatus: 500 });
+  assert.ok(!JSON.stringify(publicError(augmented)).includes('private'));
+  for (const malformed of [
+    { provider: 'qloo', operation: 'insights?key=test-secret', httpStatus: 500 },
+    { provider: 'qloo', operation: 'insights', httpStatus: '500 test-secret' },
+    { provider: 'qloo', operation: 'insights', httpStatus: 1000 },
+    { provider: 'private-provider', operation: 'insights', httpStatus: 500 }
+  ]) {
+    const error = safe();
+    error.providerDiagnostic = malformed;
+    assert.deepEqual(publicError(error).body.error, { code: error.code, message: error.message });
+  }
+  const unrelated = new AppError('VALIDATION', 'Correct the input.');
+  unrelated.providerDiagnostic = augmented.providerDiagnostic;
+  assert.equal(publicError(unrelated).body.error.diagnostic, undefined);
 });
 
 test('timeout and request budgets fail visibly without alternate endpoints or sample fallback', async () => {

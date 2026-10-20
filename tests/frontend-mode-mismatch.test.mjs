@@ -14,6 +14,7 @@ function workspace(mode = "live") {
   const blobs = new Map();
   let stored = null;
   let canonical;
+  let scoutFailure = false;
   function element(selector) {
     if (nodes.has(selector)) return nodes.get(selector);
     const listeners = new Map();
@@ -122,6 +123,10 @@ function workspace(mode = "live") {
       const body = options?.body ? JSON.parse(options.body) : null;
       calls.push({ path, body });
       if (path === "/api/rehearse") {
+        if (scoutFailure) {
+          scoutFailure = false;
+          return { ok: false, json: async () => ({ error: { code: "UPSTREAM", message: "Simulated upstream failure" } }) };
+        }
         canonical = study(body.dataMode, body.brief);
       } else if (path === "/api/revise") {
         assert.equal(body.state.runId, canonical.runId);
@@ -165,6 +170,7 @@ function workspace(mode = "live") {
     calls,
     downloads,
     element,
+    failNextScout() { scoutFailure = true; },
     stored: () => JSON.parse(stored),
     async selectMode(value) {
       element("#data-mode").value = value;
@@ -231,6 +237,90 @@ test("explicit re-scout uses the newly selected mode and preserves edited notes 
   assert.equal(await w.run('revise({type: "lock", targetId: currentTreatment().id})'), true);
   assert.deepEqual(w.calls.map((call) => call.path), ["/api/rehearse", "/api/revise"]);
   assert.equal(w.run("app.run.dataMode"), "fixture");
+});
+
+const scopedIds = {
+  fixture: { reference: "sample:reference:1", place: "sample:place:barcelona:paper-room" },
+  live: { reference: "0e46b600-04a4-4c31-a702-7a655e95d23c", place: "28e80e44-703e-4e51-bf5c-88b31cd76490" },
+};
+function addProviderScopedDraft(w, mode) {
+  w.run(`
+    app.run.revision = 3;
+    app.run.brief.avoidEntityIds = [${JSON.stringify(scopedIds[mode].place)}];
+    app.run.brief.references[0].entityId = ${JSON.stringify(scopedIds[mode].reference)};
+    app.run.decisions = [{type: "veto", targetId: ${JSON.stringify(scopedIds[mode].place)}}];
+    setBrief({...app.run.brief, city: "Lisbon", title: "My new client", note: "Keep my handwritten intention.",
+      placeKinds: ["garden", "bookshop"]});
+  `);
+}
+
+for (const [sourceMode, targetMode] of [["fixture", "live"], ["live", "fixture"]]) {
+  test(`${sourceMode} → ${targetMode} fresh scout drops foreign IDs but keeps target-mode selections and the expired study's notes`, async () => {
+    const w = workspace(sourceMode);
+    addProviderScopedDraft(w, sourceMode);
+    w.run('app.sessionStatus = "expired"');
+    await w.selectMode(targetMode);
+    w.run(`app.references[1] = {query: "My selected artist", domain: "artist", entityId: ${JSON.stringify(scopedIds[targetMode].reference)}};`);
+    await w.run("generate()");
+    const sent = w.calls[0].body;
+    assert.equal(sent.dataMode, targetMode);
+    assert.deepEqual(sent.brief.avoidEntityIds, []);
+    assert.equal(Object.hasOwn(sent.brief.references[0], "entityId"), false);
+    assert.equal(sent.brief.references[0].query, "In the Mood for Love");
+    assert.equal(sent.brief.references[1].entityId, scopedIds[targetMode].reference);
+    assert.equal(sent.brief.references[1].query, "My selected artist");
+    assert.deepEqual(sent.brief.placeKinds, ["garden", "bookshop"]);
+    assert.equal(sent.brief.city, "Lisbon");
+    assert.equal(sent.brief.title, "My new client");
+    assert.equal(sent.brief.note, "Keep my handwritten intention.");
+    assert.equal(w.run("pendingResearch()"), false, "The successful response must replace stale form IDs too");
+    assert.equal(w.run("app.recoveredNotes[0].shots[0].note"), "Leave space for the cover title.");
+    assert.deepEqual(w.stored().brief, sent.brief);
+    await w.run("generate()");
+    assert.deepEqual(w.calls[1].body.brief.avoidEntityIds, []);
+    assert.equal(Object.hasOwn(w.calls[1].body.brief.references[0], "entityId"), false);
+    assert.equal(w.calls[1].body.brief.references[1].entityId, scopedIds[targetMode].reference);
+  });
+}
+
+for (const mode of ["fixture", "live"]) {
+  test(`${mode} fresh scouting preserves same-provider exclusions, selected IDs and preferences`, async () => {
+    const w = workspace(mode);
+    addProviderScopedDraft(w, mode);
+    await w.run("generate()");
+    const brief = w.calls[0].body.brief;
+    assert.deepEqual(brief.avoidEntityIds, [scopedIds[mode].place]);
+    assert.equal(brief.references[0].entityId, scopedIds[mode].reference);
+    assert.deepEqual(brief.placeKinds, ["garden", "bookshop"]);
+    assert.equal(brief.city, "Lisbon");
+    assert.equal(brief.note, "Keep my handwritten intention.");
+  });
+}
+
+test("a draft without a prior run also removes foreign provider IDs at the scout boundary", async () => {
+  const w = workspace("fixture");
+  addProviderScopedDraft(w, "fixture");
+  w.run('app.run = null; app.sessionStatus = "none";');
+  await w.selectMode("live");
+  await w.run("generate()");
+  assert.deepEqual(w.calls[0].body.brief.avoidEntityIds, []);
+  assert.equal(Object.hasOwn(w.calls[0].body.brief.references[0], "entityId"), false);
+  assert.equal(w.calls[0].body.brief.references[0].query, "In the Mood for Love");
+});
+
+test("a failed mode-switch scout preserves the previous study and draft while sending no foreign IDs", async () => {
+  const w = workspace("fixture");
+  addProviderScopedDraft(w, "fixture");
+  await w.selectMode("live");
+  const draftBefore = w.run("JSON.stringify(readBrief())");
+  const previousRun = w.run("JSON.stringify(app.run)");
+  w.failNextScout();
+  await w.run("generate()");
+  assert.deepEqual(w.calls[0].body.brief.avoidEntityIds, []);
+  assert.equal(Object.hasOwn(w.calls[0].body.brief.references[0], "entityId"), false);
+  assert.equal(w.run("JSON.stringify(readBrief())"), draftBefore);
+  assert.equal(w.run("JSON.stringify(app.run)"), previousRun);
+  assert.equal(w.run("app.shots[app.selected][0].note"), "Leave space for the cover title.");
 });
 
 test("switching back to the existing study's mode restores decisions without a re-scout", async () => {
