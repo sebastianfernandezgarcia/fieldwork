@@ -6,7 +6,7 @@ A photographer gets a film, a record and a brand as references. FIELDWORK turns 
 
 [Open the demo](https://fieldwork-demo.onrender.com/) · [MIT license](LICENSE)
 
-**Release status, 20 October:** two distinct briefs have completed the real Qloo workflow, including keep, veto/replacement and canonical export. The updated build is being prepared for deployment; the linked public demo still runs the earlier Sample release. This project has not been submitted to the hackathon.
+**Release status, 20 October:** the public demo uses real Qloo data and Groq planning on Render Free. A browser walkthrough verified scouting, keeping a direction, editing its shot plan, ruling out another location and exporting the revised brief. Two distinct briefs also completed bounded local provider validation. This project has not been submitted to the hackathon.
 
 ## Try the working study
 
@@ -73,7 +73,9 @@ The offline suite checks reference resolution, candidate validation, keep/veto b
 
 The [20 October integration receipt](evidence/qloo-groq-integration-2026-10-20T10-59-24-353Z.json) records two live Qloo briefs and ten passing workflow checks. The first brief and its replacement used model-proposed creative treatments. The second brief used visibly labelled authored treatments after the creative guard rejected the model output. This fallback preserves the real Qloo research; it does not turn it into Sample data. The controlled verifier paced model calls, so its duration is not a user-facing latency measurement.
 
-Public-browser acceptance of the updated deployment remains pending. Historical Sample and Groq evidence is preserved in the [18 October validation history](docs/VALIDATION_HISTORY_2026-10-18.md). Successful checks establish their recorded cases, not general model reliability or verified venue conditions.
+The [public-browser receipt](evidence/public-browser-summary-2026-10-20.json) records 13 passing acceptance checks on deployment `d8d92a2`. Its initial model selection failed the structured-action contract and used the labelled authored fallback. The later veto/replan completed with two Groq model actions: the kept direction and user edit survived, and the other direction was replaced. The original failure's exact cause was not recorded by that build; later diagnostics do not retroactively explain it.
+
+Historical Sample and Groq evidence is preserved in the [18 October validation history](docs/VALIDATION_HISTORY_2026-10-18.md). Successful checks establish their recorded cases, not general model reliability or verified venue conditions.
 
 The public demo uses Render Free. It can sleep while inactive, and waking may take time. Server storage is temporary: if a saved study expires, FIELDWORK preserves creative notes and marks the research unverified until an explicit fresh scout. Download your brief to keep a copy.
 
