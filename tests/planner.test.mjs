@@ -187,6 +187,55 @@ test('failed selection exposes only bounded HTTP and allowlisted provider diagno
   assert.equal(calls, 2);
 });
 
+test('a truncated HTTP 200 selection retains bounded completion evidence in its trace without retrying or changing the banner', async () => {
+  let calls = 0;
+  const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => {
+    if (++calls === 1) return response();
+    return Response.json({
+      choices: [{ finish_reason: 'length', message: { content: 'PRIVATE_PARTIAL_ACTION', reasoning: 'PRIVATE_REASONING' } }],
+      usage: { prompt_tokens: 2600, completion_tokens: 1300, total_tokens: 3900, private: 'PRIVATE_USAGE' },
+      private: 'PRIVATE_ENVELOPE'
+    });
+  } });
+  const state = await rehearse({ exampleId: 'quiet-city' }, { planner });
+  const failed = state.trace.find(t => t.fallbackCode === 'GROQ_CONTRACT');
+  assert.match(failed.outputSummary, /HTTP_200, FINISH_LENGTH/);
+  assert.deepEqual(failed.plannerDiagnostic, {
+    finishReason: 'length', completionTokenLimit: 1300,
+    usage: { prompt_tokens: 2600, completion_tokens: 1300, total_tokens: 3900 }
+  });
+  assert.equal(state.provenance.modelActions, 1);
+  assert.equal(state.provenance.policyActions, 1);
+  assert.ok(state.warnings.every(w => !w.includes('FINISH_LENGTH') && !w.includes('HTTP_200')));
+  for (const secret of [KEY, 'PRIVATE_PARTIAL_ACTION', 'PRIVATE_REASONING', 'PRIVATE_USAGE', 'PRIVATE_ENVELOPE']) assert.equal(JSON.stringify(state).includes(secret), false);
+  const latched = await planner.choose(selection());
+  assert.deepEqual(latched.fallbackDetailCodes, ['HTTP_200', 'FINISH_LENGTH']);
+  assert.deepEqual(latched.fallbackDiagnostic, failed.plannerDiagnostic);
+  assert.equal(calls, 2);
+});
+
+test('HTTP 200 diagnostics distinguish contract failures and omit unknown finish reasons or invalid usage', async t => {
+  const cases = [
+    { name: 'invalid action JSON', content: 'PRIVATE_INVALID_JSON', detail: 'ACTION_JSON_INVALID' },
+    { name: 'extra action field', action: { action: 'select_treatments', candidateIds: ['a', 'b'], creativeProposals: [], private: 'PRIVATE_FIELD' }, detail: 'ACTION_SHAPE' },
+    { name: 'invented candidate', action: { action: 'select_treatments', candidateIds: ['a', 'PRIVATE_ID'], creativeProposals: [] }, detail: 'SELECTION_IDS' },
+    { name: 'lost human lock', action: { action: 'select_treatments', candidateIds: ['b', 'c'], creativeProposals: [] }, detail: 'SELECTION_LOCK_MISSING' },
+    { name: 'unknown finish reason', finish: 'PRIVATE_FINISH', content: '{}', detail: 'FINISH_UNSUPPORTED' }
+  ];
+  for (const item of cases) await t.test(item.name, async () => {
+    const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => Response.json({
+      choices: [{ finish_reason: item.finish ?? 'stop', message: { content: item.content ?? JSON.stringify(item.action), reasoning: 'PRIVATE_REASONING' } }],
+      usage: { prompt_tokens: 'PRIVATE_USAGE', completion_tokens: -1, total_tokens: 1_000_001, extra: 'PRIVATE_USAGE_FIELD' }
+    }) });
+    const result = await planner.choose(selection());
+    assert.equal(result.fallbackCode, 'GROQ_CONTRACT');
+    assert.deepEqual(result.fallbackDetailCodes, ['HTTP_200', item.detail]);
+    assert.deepEqual(result.fallbackDiagnostic, { finishReason: item.finish ? 'unknown' : 'stop', completionTokenLimit: 1300 });
+    assert.ok(result.candidateIds.includes('a'));
+    assert.equal(JSON.stringify(result).includes('PRIVATE_'), false);
+  });
+});
+
 test('unknown, secret-bearing and oversized provider diagnostics cannot become public text', async t => {
   const cases = [
     { name: 'unknown fields', body: JSON.stringify({ error: { type: 'PRIVATE_TYPE', code: 'PRIVATE_CODE', message: 'PRIVATE_MESSAGE' } }), expected: ['HTTP_500', 'PROVIDER_TYPE_UNRECOGNIZED', 'PROVIDER_CODE_UNRECOGNIZED'] },
@@ -227,10 +276,12 @@ test('oversized, truncated, refused, malformed or secret-bearing responses are r
     () => response(discovery, { choices: [{ finish_reason: 'stop', message: { refusal: 'no', content: JSON.stringify(discovery) } }] }),
     () => response(discovery, { choices: [{ finish_reason: 'stop', message: { tool_calls: [], content: JSON.stringify(discovery) } }] })
   ];
+  const details = ['RESPONSE_BODY_UNUSABLE', 'RESPONSE_BODY_UNUSABLE', 'RESPONSE_JSON_INVALID', 'RESPONSE_WITHHELD', 'FINISH_LENGTH', 'RESPONSE_REFUSAL', 'RESPONSE_TOOL_CALLS'];
   for (const [index, makeResponse] of responses.entries()) await t.test(`unusable response ${index + 1}`, async () => {
     const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => makeResponse() });
     const result = await planner.choose(context());
     assert.equal(result.fallbackCode, 'GROQ_CONTRACT');
+    assert.deepEqual(result.fallbackDetailCodes, ['HTTP_200', details[index]]);
     assert.equal(JSON.stringify(result).includes(KEY), false);
   });
 });
