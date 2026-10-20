@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "fieldwork.browser-live-acceptance.v1",
+  "checkedAt": "2026-10-20T11:11:23.739866+00:00",
+  "sourceUrl": "http://127.0.0.1:4323/",
+  "hostedPath": false,
+  "passed": true,
+  "checks": {
+    "same_run": true,
+    "expected_revision": true,
+    "real_qloo": true,
+    "all_candidates_qloo": true,
+    "locked_treatment_exact": true,
+    "veto_absent": true,
+    "two_model_directions": true,
+    "json_edit_preserved": true,
+    "markdown_edit_preserved": true,
+    "practical_checks_unverified": true,
+    "export_matches_server": true,
+    "references_preserved": true,
+    "brief_intent_preserved": true,
+    "real_replacement": true
+  },
+  "revision": 3,
+  "runIdSha256": "bd939f4b6f1bf7399155ced889d3e46ba53159139c50e4811aeb859088f02556",
+  "initialBriefSha256": "57091198b7d5a7b9a29ce32d8333da696f1986e20e239d3a540aad229920dc3a",
+  "candidateCount": 8,
+  "creativeSources": [
+    "model-proposed",
+    "model-proposed"
+  ],
+  "exports": {
+    "A-export.md": "6135189f9406739061d8528c13844f051790b8850508e8503aeb644c1d7e3b52",
+    "A-export.json": "53d7a938148ece04b8b2cda3cfe858057d849ea428c921f0b50d04d5c26c0919"
+  },
+  "scope": "Observed local browser actions with real Qloo and Groq; no result injection, no hosting or latency claim."
+}

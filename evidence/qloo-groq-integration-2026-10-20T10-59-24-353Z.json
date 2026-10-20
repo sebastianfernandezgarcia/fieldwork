@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "fieldwork.qloo-groq-integration.v2",
+  "sourceHashes": {
+    "lib/qloo.mjs": "00ce8a8e7cd5fb261e7a61c8582435123a08b418d6d30de0b8d31c34b9d5e3bf",
+    "lib/engine.mjs": "a72025c9b3eb7798aee365c0d53955f9282e9a0eaad5c054855e9b1f47c8bbf6",
+    "lib/planner.mjs": "04b68b982f01992afc62db63db576acb0e30b96a3fad60ba872ad83b2d94c59d",
+    "server.mjs": "342885312e9322caa4f19ea6c21a590aacce1885e320ba2a539387c7144f651d"
+  },
+  "startedAt": "2026-10-20T10:59:24.353Z",
+  "finishedAt": "2026-10-20T11:04:31.050Z",
+  "transport": "live",
+  "passed": true,
+  "failureCode": null,
+  "totalSessionQlooRequests": 31,
+  "sessionQlooLimit": 40,
+  "validationQlooRequests": 18,
+  "groqRequests": 6,
+  "groqSpacingMs": 61000,
+  "groqUsage": [
+    {
+      "index": 1,
+      "httpStatus": 200,
+      "dispatchedAt": 1792493965278,
+      "usage": {
+        "prompt_tokens": 1038,
+        "completion_tokens": 37,
+        "total_tokens": 1075
+      }
+    },
+    {
+      "index": 2,
+      "httpStatus": 200,
+      "dispatchedAt": 1792494026280,
+      "usage": {
+        "prompt_tokens": 2386,
+        "completion_tokens": 414,
+        "total_tokens": 2800
+      }
+    },
+    {
+      "index": 3,
+      "httpStatus": 200,
+      "dispatchedAt": 1792494087280,
+      "usage": {
+        "prompt_tokens": 1034,
+        "completion_tokens": 37,
+        "total_tokens": 1071
+      }
+    },
+    {
+      "index": 4,
+      "httpStatus": 200,
+      "dispatchedAt": 1792494148281,
+      "usage": {
+        "prompt_tokens": 2372,
+        "completion_tokens": 445,
+        "total_tokens": 2817
+      }
+    },
+    {
+      "index": 5,
+      "httpStatus": 200,
+      "dispatchedAt": 1792494209283,
+      "usage": {
+        "prompt_tokens": 1104,
+        "completion_tokens": 35,
+        "total_tokens": 1139
+      }
+    },
+    {
+      "index": 6,
+      "httpStatus": 200,
+      "dispatchedAt": 1792494270312,
+      "usage": {
+        "prompt_tokens": 2354,
+        "completion_tokens": 288,
+        "total_tokens": 2642
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "brief-1-ready",
+      "passed": true
+    },
+    {
+      "id": "brief-1-qloo-source",
+      "passed": true
+    },
+    {
+      "id": "brief-2-ready",
+      "passed": true
+    },
+    {
+      "id": "brief-2-qloo-source",
+      "passed": true
+    },
+    {
+      "id": "lock-needs-no-qloo-request",
+      "passed": true
+    },
+    {
+      "id": "replan-ready",
+      "passed": true
+    },
+    {
+      "id": "locked-treatment-preserved",
+      "passed": true
+    },
+    {
+      "id": "veto-excluded",
+      "passed": true
+    },
+    {
+      "id": "export-matches-canonical-revision",
+      "passed": true
+    },
+    {
+      "id": "stale-revision-rejected",
+      "passed": true
+    }
+  ],
+  "states": [
+    {
+      "label": "brief-1",
+      "status": "ready",
+      "referenceCount": 3,
+      "referenceChoicesNeeded": 0,
+      "candidateCount": 8,
+      "planner": "groq",
+      "modelActions": 2,
+      "policyActions": 0,
+      "modelProposed": 2,
+      "authoredTemplates": 0,
+      "creativeFailureCodes": [],
+      "plannerFailureCodes": [],
+      "qlooUsed": true,
+      "rankingComparisonAvailable": true
+    },
+    {
+      "label": "brief-2",
+      "status": "ready",
+      "referenceCount": 3,
+      "referenceChoicesNeeded": 0,
+      "candidateCount": 8,
+      "planner": "groq",
+      "modelActions": 2,
+      "policyActions": 0,
+      "modelProposed": 0,
+      "authoredTemplates": 2,
+      "creativeFailureCodes": [
+        "CREATIVE_ACTION_FORM"
+      ],
+      "plannerFailureCodes": [],
+      "qlooUsed": true,
+      "rankingComparisonAvailable": true
+    },
+    {
+      "label": "locked",
+      "status": "ready",
+      "referenceCount": 3,
+      "referenceChoicesNeeded": 0,
+      "candidateCount": 8,
+      "planner": "groq",
+      "modelActions": 2,
+      "policyActions": 0,
+      "modelProposed": 2,
+      "authoredTemplates": 0,
+      "creativeFailureCodes": [],
+      "plannerFailureCodes": [],
+      "qlooUsed": true,
+      "rankingComparisonAvailable": true
+    },
+    {
+      "label": "replanned",
+      "status": "ready",
+      "referenceCount": 3,
+      "referenceChoicesNeeded": 0,
+      "candidateCount": 8,
+      "planner": "groq",
+      "modelActions": 2,
+      "policyActions": 0,
+      "modelProposed": 2,
+      "authoredTemplates": 0,
+      "creativeFailureCodes": [],
+      "plannerFailureCodes": [],
+      "qlooUsed": true,
+      "rankingComparisonAvailable": true
+    }
+  ],
+  "privateReceiptSha256": "dbc9d72e6bd97c87a38999a534ba5c6bfee221309025c938d47aaa77a491cdc7",
+  "realQlooVerified": true,
+  "hostedPath": false,
+  "venueFacts": false
+}

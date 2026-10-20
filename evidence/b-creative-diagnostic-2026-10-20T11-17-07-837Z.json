@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "fieldwork.creative-diagnostic.v1",
+  "startedAt": "2026-10-20T11:17:07.837Z",
+  "finishedAt": "2026-10-20T11:17:08.868Z",
+  "sourceHashes": {
+    "lib/planner.mjs": "04b68b982f01992afc62db63db576acb0e30b96a3fad60ba872ad83b2d94c59d",
+    "lib/engine.mjs": "a72025c9b3eb7798aee365c0d53955f9282e9a0eaad5c054855e9b1f47c8bbf6"
+  },
+  "contextSha256": "562765775cea732ef43b629a2156c9d7d303132127a9e87a073226ecc58b7393",
+  "requestBodySha256": "5ff985455e6121e1638fae880baae373266a018c2c3e938b0e67eb2db5d9768e",
+  "requests": 1,
+  "httpStatus": 200,
+  "usage": {
+    "prompt_tokens": 2372,
+    "completion_tokens": 558,
+    "total_tokens": 2930
+  },
+  "qlooRequests": 0,
+  "scope": "Exactly one Groq selection on replayed observed candidates from browser B. Discovery and Qloo data are replayed locally. The unchanged engine checks creative proposals. This is not fresh Qloo or public-host validation.",
+  "action": "select_treatments",
+  "proposalCount": 2,
+  "modelProposed": 0,
+  "authoredTemplates": 2,
+  "creativeFailureCodes": [
+    "CREATIVE_ACTION_FORM"
+  ],
+  "fieldChecks": [
+    {
+      "field": "proposal[0].premise",
+      "originalLength": 146,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    },
+    {
+      "field": "proposal[0].shots[0].note",
+      "originalLength": 93,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    },
+    {
+      "field": "proposal[0].shots[1].note",
+      "originalLength": 80,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    },
+    {
+      "field": "proposal[0].shots[2].note",
+      "originalLength": 87,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": false,
+          "reason": "UNLISTED_WORD"
+        }
+      ]
+    },
+    {
+      "field": "proposal[1].premise",
+      "originalLength": 149,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    },
+    {
+      "field": "proposal[1].shots[0].note",
+      "originalLength": 98,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    },
+    {
+      "field": "proposal[1].shots[1].note",
+      "originalLength": 76,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    },
+    {
+      "field": "proposal[1].shots[2].note",
+      "originalLength": 112,
+      "sentences": [
+        {
+          "index": 0,
+          "actionFormPassed": true,
+          "reason": "ALLOWED_ACTION"
+        }
+      ]
+    }
+  ],
+  "factualVerification": false,
+  "normalizedDecisionSha256": "99b9aec5b1a4d026ac0f45c34e02bc641f3e59ada79b6b165ab882d2991e5157",
+  "normalizedDecisionPrivatePath": "evidence/private/b-creative/decision-2026-10-20T11-17-07-837Z.json"
+}

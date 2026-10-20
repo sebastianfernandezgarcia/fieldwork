@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "fieldwork.live-validation-summary.v1",
+  "startedAt": "2026-10-20T10:59:24.353Z",
+  "finishedAt": "2026-10-20T11:04:31.050Z",
+  "transport": "live",
+  "liveQlooVerified": true,
+  "passed": true,
+  "failureCode": null,
+  "requestBudget": 24,
+  "requestCount": 18,
+  "durationMs": 306671,
+  "checks": [
+    {
+      "id": "brief-1-ready",
+      "passed": true
+    },
+    {
+      "id": "brief-1-qloo-source",
+      "passed": true
+    },
+    {
+      "id": "brief-2-ready",
+      "passed": true
+    },
+    {
+      "id": "brief-2-qloo-source",
+      "passed": true
+    },
+    {
+      "id": "lock-needs-no-qloo-request",
+      "passed": true
+    },
+    {
+      "id": "replan-ready",
+      "passed": true
+    },
+    {
+      "id": "locked-treatment-preserved",
+      "passed": true
+    },
+    {
+      "id": "veto-excluded",
+      "passed": true
+    },
+    {
+      "id": "export-matches-canonical-revision",
+      "passed": true
+    },
+    {
+      "id": "stale-revision-rejected",
+      "passed": true
+    }
+  ],
+  "briefs": [
+    {
+      "label": "brief-1",
+      "status": "ready",
+      "referencesResolved": 3,
+      "candidates": 8,
+      "treatments": 2,
+      "referenceChoicesNeeded": 0,
+      "planner": "groq",
+      "modelActions": 2,
+      "policyActions": 0,
+      "rankingComparisonAvailable": true
+    },
+    {
+      "label": "brief-2",
+      "status": "ready",
+      "referencesResolved": 3,
+      "candidates": 8,
+      "treatments": 2,
+      "referenceChoicesNeeded": 0,
+      "planner": "groq",
+      "modelActions": 2,
+      "policyActions": 0,
+      "rankingComparisonAvailable": true
+    }
+  ],
+  "scope": "Two synthetic briefs through the real application HTTP routes; keep, veto/replan, canonical export and stale-revision rejection. This does not verify venue permission, visual suitability, admission fees, production availability, public hosting or competition eligibility.",
+  "privateReceiptSha256": "dbc9d72e6bd97c87a38999a534ba5c6bfee221309025c938d47aaa77a491cdc7"
+}

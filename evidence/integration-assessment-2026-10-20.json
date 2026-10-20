@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "fieldwork.integration-assessment.v1",
+  "scope": "Local application HTTP routes with real Qloo and Groq, public cultural references and synthetic photographer briefs. This is not public-host or venue-fact verification.",
+  "receipt": "qloo-groq-integration-2026-10-20T10-59-24-353Z.json",
+  "priorFailedReceipt": "qloo-groq-integration-2026-10-20T10-46-38-128Z.json",
+  "qlooWorkflowPassed": true,
+  "modelActionSelectionPassed": true,
+  "allCreativeProposalsPassed": false,
+  "findings": [
+    "Both briefs resolved three cultural references and returned eight real Qloo candidates.",
+    "Brief A produced two model-proposed directions. Keep, brief editing, veto, replacement, exact preservation of the fixed treatment, canonical export and stale-revision rejection passed.",
+    "The replacement revision retained two model-proposed directions and no authored templates.",
+    "Brief B selected locations with Groq but the creative-form guard rejected its proposal array with CREATIVE_ACTION_FORM. Two authored templates were shown explicitly; this is not a successful model-creative result.",
+    "The initial rejected creative text was not retained. Its code alone could not distinguish a descriptive assertion from an otherwise legitimate action verb outside the allowed list. The bounded follow-up below subsequently reproduced and diagnosed the rejection.",
+    "The prompt and action-verb guard agree. No further relaxation, retry or change was made without concrete diagnostic evidence.",
+    "Bookshop resolved to the returned Book store place-category tag. Gallery remained unconfirmed because exact display names appeared in three category namespaces; the application disclosed this ambiguity. None of the successful scouts needed soft-filter expansion.",
+    "This corrected validation used 18 Qloo and 6 Groq requests, all HTTP 200. Session totals including preflight and the failed first attempt were 31 Qloo and 10 Groq requests.",
+    "Groq calls were separated by 61 seconds by the validation harness. Observed total tokens were 3875 for A, 3888 for B and 3781 for the replan. This does not verify unpaced runtime behavior under an 8000-token-per-minute account limit."
+  ],
+  "offlineValidation": {
+    "focusedTestsPassed": 86,
+    "qlooTestsAfterCategoryLabelChangePassed": 22,
+    "countsOverlap": true,
+    "coverage": "Category namespaces and aliases, rejection of amenity/setting ambiguity, one disclosed soft-filter expansion for scarcity, fixed-decision and exclusion preservation, planner contracts, real HTTP validation harness."
+  },
+  "changes": [
+    "lib/qloo.mjs",
+    "lib/engine.mjs",
+    "tests/qloo.test.mjs",
+    "tests/engine.test.mjs",
+    "scripts/validate-live.test.mjs"
+  ],
+  "rollbackBoundary": "Remove the category-only resolver/display classification and scarcity action gating together with their corresponding test changes. No credential, hosting, public UI or planner-contract change belongs to this work unit.",
+  "categoryApiReference": "https://github.com/qloo/docs-public/blob/main/reference/get-tags.md",
+  "boundedCreativeFollowUp": {
+    "beforeReceipt": "b-creative-diagnostic-2026-10-20T11-17-07-837Z.json",
+    "afterReceipt": "b-creative-diagnostic-2026-10-20T11-20-24-032Z.json",
+    "contextSha256": "562765775cea732ef43b629a2156c9d7d303132127a9e87a073226ecc58b7393",
+    "groqRequests": 2,
+    "qlooRequests": 0,
+    "context": "The same eight observed candidates, zero locks and two expected proposals from the private browser B export. Only selection called Groq; discovery and Qloo data were replayed locally.",
+    "diagnosis": "The exact replay rejected a shot beginning with Zoom, outside the allowed action vocabulary. Inspection of the normalized final proposal also found unsupported assumptions about venue colors, light, windows and decor. The guard was not widened to accept it.",
+    "mitigation": "Prompt and schema descriptions now distinguish categories from physical observations, require explicit scout-dependent hypotheses for physical setups, and include the observed bad shot plus a conditional alternative. Runtime guards, IDs, locks, hard text limits and fallback behavior are unchanged.",
+    "afterActionFormPassed": true,
+    "afterModelProposed": 2,
+    "afterAuthoredTemplates": 0,
+    "factualVerification": false,
+    "residualLimitation": "Although premises became scout-dependent and the form guard passed, manual review still found shot ideas depending on a wall or window without a preceding condition. This is not a general semantic guarantee or complete removal of venue assumptions.",
+    "focusedTestsPassed": 59,
+    "plannerSha256": "a3ba817615895e817df7f5a35c194f5866990313af00f176fe37967a61f1c639",
+    "engineSha256": "a72025c9b3eb7798aee365c0d53955f9282e9a0eaad5c054855e9b1f47c8bbf6",
+    "changes": ["lib/planner.mjs", "tests/planner.test.mjs", "tests/creative-proposals.test.mjs"],
+    "rollbackBoundary": "The additional conditional-setup instructions and their related regressions can be reverted without changing the category/scarcity fix or any runtime guard.",
+    "privateDiagnostics": "Only the final structured actions and proposals were retained under ignored evidence/private/b-creative/ with mode 0600. No provider response envelope, reasoning or credential was retained."
+  },
+  "nextEvidenceNeeded": "Public UI rehearsal and, only if a future creative rejection is investigated, narrowly retained normalized proposal text or fixed field/index diagnostic codes. No new provider calls are authorized by this assessment."
+}
