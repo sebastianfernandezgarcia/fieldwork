@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-10-20T11:50:32.670630+00:00",
+  "scope": "Actual public browser on Render: existing saved Sample draft moved to Qloo live, then keep/edit/veto/export.",
+  "runtimeCommit": "d8d92a2dc4546fa0c44ff8e2d84cbb407e3435b5",
+  "demoUrl": "https://fieldwork-demo.onrender.com/",
+  "checks": {
+    "public_live_qloo": true,
+    "3_references_8_candidates": true,
+    "canonical_export": true,
+    "revision_3_same_run": true,
+    "keep_preserved": true,
+    "user_edit_preserved": true,
+    "veto_excluded": true,
+    "replacement_changed": true,
+    "replan_model_actions": true,
+    "markdown_edit_and_source": true,
+    "recovered_notes_not_exported": true,
+    "no_sample_place_ids": true,
+    "practical_checks_unclaimed": true
+  },
+  "passed": 13,
+  "total": 13,
+  "runIdSha256": "4d5f722767093dc4cc4bf4b1209edff678800424f8ec3517dae3cadb4d576bae",
+  "initialSelection": "GROQ_CONTRACT, explicitly labelled bounded policy and authored treatments. Exact cause unavailable in this version.",
+  "replan": "2 Groq model actions, new model proposal; kept authored direction and user edit preserved.",
+  "limitations": [
+    "One recorded public journey, not a general model reliability estimate.",
+    "Gallery category remains unconfirmed; venue access, light and permission unverified.",
+    "Video records a separate real local A journey, not this public run."
+  ],
+  "privateExportsSha256": {
+    "public-d8-initial.json": "9dd38f6ec5a5debba22490bb578bbd370db285a747101e48ae51e29d7f252a07",
+    "public-d8-final.json": "54f7b511d18b9ccd9642eabd1fea24e0c2d31cbaa5020d83bf4826dc064805c6",
+    "public-d8-final.md": "1bde123d72350f66807a00d34ab09d131187b210953e500a7b21b48f9c8ceed0"
+  }
+}
