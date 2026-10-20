@@ -194,6 +194,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const port = Number(process.env.PORT || 4322);
   const host = process.env.HOST || '127.0.0.1';
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT must be a valid TCP port.');
+  const defaultDataMode = process.env.FIELDWORK_DEFAULT_MODE || 'fixture';
+  if (!['fixture', 'live'].includes(defaultDataMode)) throw new Error('FIELDWORK_DEFAULT_MODE must be fixture or live.');
   const sessionPath = process.env.FIELDWORK_SESSION_FILE || path.join(ROOT, '.local', 'sessions.json');
-  createApp({ sessionPath }).listen(port, host, () => console.log(`FIELDWORK ready at http://${host}:${port} · default sample data`));
+  createApp({ sessionPath }).listen(port, host, () => console.log(`FIELDWORK ready at http://${host}:${port} · default ${defaultDataMode === 'live' ? 'Qloo live' : 'sample'} data`));
 }
