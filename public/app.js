@@ -13,6 +13,14 @@ const evidenceText = (value) =>
   typeof value === "object" && value !== null
     ? JSON.stringify(value, null, 2)
     : String(value ?? "");
+const affinityDisplay = (value) => {
+  if (value == null) return "Not available";
+  if (typeof value !== "number" || !Number.isFinite(value)) return String(value);
+  const magnitude = Math.abs(value);
+  return magnitude > 0 && (magnitude < 0.001 || magnitude >= 10000)
+    ? value.toExponential(3)
+    : new Intl.NumberFormat("en-GB", { maximumSignificantDigits: 4 }).format(value);
+};
 const STORAGE = "fieldwork.workspace.v1";
 const defaults = {
   id: "quiet-city",
@@ -48,6 +56,8 @@ const app = {
 };
 let toastTimer;
 let lastDialogTrigger;
+const referenceSearchCancels = new Set();
+const activeReferenceSearches = new Set();
 const domainLabels = {
   movie: "FILM",
   artist: "MUSIC",
@@ -123,6 +133,23 @@ function persist() {
 }
 function sessionReady() {
   return app.sessionStatus === "active";
+}
+function studyModeMatches() {
+  return !app.run || app.dataMode === app.run.dataMode;
+}
+function revisionReady() {
+  return sessionReady() && studyModeMatches();
+}
+function modeChangeNotice() {
+  if (studyModeMatches()) return "";
+  const nextMode = app.dataMode === "live" ? "Qloo live" : "Sample";
+  const studyMode = app.run.dataMode === "live" ? "Qloo live" : "Sample";
+  return `<div class="session-notice" role="status"><span class="eyebrow">DATA MODE CHANGED / RE-SCOUT REQUIRED</span><h3>Start a ${nextMode} study.</h3><p>The results below belong to your existing ${studyMode} study. Keeps, rule-outs and research changes are paused. Re-scout to use ${nextMode}, or switch Data back to ${studyMode} to continue this study.</p><p class="privacy-note">Your brief and shot notes are preserved. Re-scouting makes a fresh shortlist: edited shots become unassigned notes, and previous keeps and practical checks do not carry over.</p></div>`;
+}
+function pauseModeRevision() {
+  if (studyModeMatches()) return false;
+  message("Data mode changed. Re-scout to use the selected mode, or switch Data back to continue this study. Your notes are preserved.");
+  return true;
 }
 function sessionNotice() {
   if (!app.run || sessionReady()) return "";
@@ -239,7 +266,16 @@ function renderJournal() {
     .join("");
 }
 
+function cancelReferenceSearches() {
+  referenceSearchCancels.forEach((cancel) => cancel());
+}
+async function waitForReferenceSearches() {
+  // Client aborts do not release the server's provider slots. Observe completion.
+  await Promise.allSettled([...activeReferenceSearches]);
+}
 function renderReferences() {
+  cancelReferenceSearches();
+  referenceSearchCancels.clear();
   $("#reference-fields").innerHTML = app.references
     .map(
       (ref, index) =>
@@ -248,7 +284,15 @@ function renderReferences() {
     .join("");
   $$("[data-reference-index]").forEach((input) => {
     let timer;
-    let controller;
+    let searchVersion = 0;
+    const cancelSearch = () => {
+      clearTimeout(timer);
+      timer = undefined;
+      searchVersion += 1;
+    };
+    referenceSearchCancels.add(cancelSearch);
+    // Keep visible result buttons intact so a blur followed by a click can select one.
+    input.addEventListener("blur", cancelSearch);
     input.addEventListener("input", () => {
       const index = Number(input.dataset.referenceIndex);
       app.references[index] = {
@@ -258,21 +302,22 @@ function renderReferences() {
       markDirty();
       input.nextElementSibling?.classList.contains("reference-resolved") &&
         input.nextElementSibling.remove();
-      clearTimeout(timer);
-      controller?.abort();
+      cancelSearch();
       const results = $(`#search-${index}`);
       results.hidden = true;
       input.setAttribute("aria-expanded", "false");
       if (input.value.trim().length < 2) return;
       timer = setTimeout(async () => {
-        controller = new AbortController();
+        timer = undefined;
+        if (app.busy || document.activeElement !== input) return;
+        const version = searchVersion;
+        const request = api(
+          `/api/search?query=${encodeURIComponent(input.value.trim())}&domain=${encodeURIComponent(app.references[index].domain)}&dataMode=${app.dataMode}`,
+        );
+        activeReferenceSearches.add(request);
         try {
-          const data = await api(
-            `/api/search?query=${encodeURIComponent(input.value.trim())}&domain=${encodeURIComponent(app.references[index].domain)}&dataMode=${app.dataMode}`,
-            null,
-            controller.signal,
-          );
-          if (document.activeElement !== input) return;
+          const data = await request;
+          if (version !== searchVersion || app.busy || document.activeElement !== input) return;
           const candidates = data.candidates || [];
           results.innerHTML = candidates.length
             ? candidates
@@ -299,11 +344,13 @@ function renderReferences() {
             }),
           );
         } catch (error) {
-          if (error.name !== "AbortError") {
+          if (version === searchVersion && !app.busy && document.activeElement === input) {
             results.innerHTML = `<div class="search-note">${e(error.message)}</div>`;
             results.hidden = false;
             input.setAttribute("aria-expanded", "true");
           }
+        } finally {
+          activeReferenceSearches.delete(request);
         }
       }, 280);
     });
@@ -363,6 +410,7 @@ function markDirty() {
         ref.query !== app.run.brief.references[index]?.query ||
         ref.entityId !== app.run.brief.references[index]?.entityId,
     );
+  $("#apply-references").disabled = app.busy || !revisionReady();
 }
 function currentTreatment() {
   return (
@@ -404,12 +452,14 @@ function checkKey(itemKey) {
 }
 function setBusy(value) {
   app.busy = value;
+  if (value) cancelReferenceSearches();
   $$("input,select,textarea,button", $("#brief-form")).forEach(
     (control) => (control.disabled = value),
   );
   $("#reset-session").disabled = value;
   $("#open-brief-nav").disabled = value;
   $("#choose-brief").disabled = value || !app.examples.length;
+  $("#apply-references").disabled = value || !revisionReady();
 }
 
 function showExampleBriefs() {
@@ -479,7 +529,7 @@ function renderConnection() {
   $("#data-use-note").textContent = notes.join(" ");
   $("#data-use-note").hidden = !notes.length;
   $("#connection-status").innerHTML =
-    `<span class="status-dot ${live && app.health?.qlooConfigured ? "live" : ""}"></span><span>${live ? (app.health?.qlooConfigured ? "Qloo live connection configured. Each result carries its source." : "Qloo live is not connected. Switch to Sample to explore the workflow.") : "Sample workspace. Fictional places; no live Qloo results."}</span>`;
+    `<span class="status-dot ${live && app.health?.qlooConfigured ? "live" : ""}"></span><span>${!studyModeMatches() ? `Next study: ${live ? "Qloo live" : "Sample"}. Re-scout to apply this mode.` : live ? (app.health?.qlooConfigured ? "Qloo live connection configured. Each result carries its source." : "Qloo live is not connected. Switch to Sample to explore the workflow.") : "Sample workspace. Fictional places; no live Qloo results."}</span>`;
 }
 function renderEmpty() {
   $("#study-output").innerHTML =
@@ -530,7 +580,7 @@ function candidateMarkup(candidate, index, { featured = false } = {}) {
         (isFixture
           ? "A fictional setting used to demonstrate the scouting workflow."
           : "A place returned by Qloo for the selected cultural references. Scout it before committing to a shoot.");
-  return `<article class="candidate ${featured ? "candidate-featured" : ""}"><span class="candidate-number">${String(index + 1).padStart(2, "0")}</span><div><h3 class="candidate-name">${e(candidate.name)}</h3><p class="candidate-category">${e(candidate.kind || "Place")} · ${e(candidateAddress(candidate))}${isFixture ? " · FICTIONAL PLACE" : ""}</p><p class="candidate-reason">${e(reason)}</p><div class="candidate-bottom"><button type="button" class="text-link" data-evidence="${e(candidate.id)}">See the reasoning ↗</button><span class="data-tag ${isLocked ? "keep" : ""}">${!sessionReady() ? "SAVED COPY / UNVERIFIED" : isLocked ? "KEPT IN THIS STUDY" : isFixture ? "SAMPLE RECORD" : "QLOO RESULT"}</span>${treatment?.needsReview ? '<span class="data-tag">REVIEW AFTER CHANGE</span>' : ""}</div></div><div class="candidate-actions">${treatment ? `<button type="button" class="small-button ${isLocked ? "active" : ""}" data-lock="${e(treatment.id)}" ${!sessionReady() ? "disabled" : ""} aria-pressed="${isLocked}" aria-label="${isLocked ? "Release" : "Keep"} ${e(candidate.name)}"><span aria-hidden="true">${isLocked ? "✓" : "+"}</span> ${isLocked ? "Kept" : "Keep"}</button>` : ""}<button type="button" class="small-button danger" data-veto="${e(candidate.id)}" ${!sessionReady() ? "disabled" : isLocked ? 'disabled title="Release this kept direction before ruling it out"' : ""} aria-label="${isLocked ? "Release the keep before ruling out" : "Rule out"} ${e(candidate.name)}">Rule out <span aria-hidden="true">×</span></button></div></article>`;
+  return `<article class="candidate ${featured ? "candidate-featured" : ""}"><span class="candidate-number">${String(index + 1).padStart(2, "0")}</span><div><h3 class="candidate-name">${e(candidate.name)}</h3><p class="candidate-category">${e(candidate.kind || "Place")} · ${e(candidateAddress(candidate))}${isFixture ? " · FICTIONAL PLACE" : ""}</p><p class="candidate-reason">${e(reason)}</p><div class="candidate-bottom"><button type="button" class="text-link" data-evidence="${e(candidate.id)}">See the reasoning ↗</button><span class="data-tag ${isLocked ? "keep" : ""}">${!sessionReady() ? "SAVED COPY / UNVERIFIED" : isLocked ? "KEPT IN THIS STUDY" : isFixture ? "SAMPLE RECORD" : "QLOO RESULT"}</span>${treatment?.needsReview ? '<span class="data-tag">REVIEW AFTER CHANGE</span>' : ""}</div></div><div class="candidate-actions">${treatment ? `<button type="button" class="small-button ${isLocked ? "active" : ""}" data-lock="${e(treatment.id)}" ${!revisionReady() ? "disabled" : ""} aria-pressed="${isLocked}" aria-label="${isLocked ? "Release" : "Keep"} ${e(candidate.name)}"><span aria-hidden="true">${isLocked ? "✓" : "+"}</span> ${isLocked ? "Kept" : "Keep"}</button>` : ""}<button type="button" class="small-button danger" data-veto="${e(candidate.id)}" ${!revisionReady() ? "disabled" : isLocked ? 'disabled title="Release this kept direction before ruling it out"' : ""} aria-label="${isLocked ? "Release the keep before ruling out" : "Rule out"} ${e(candidate.name)}">Rule out <span aria-hidden="true">×</span></button></div></article>`;
 }
 function renderResults() {
   const run = app.run;
@@ -556,7 +606,7 @@ function renderResults() {
   $("#generate-button span:first-child").textContent = "Re-scout my direction";
   const issues = (run.resolutionIssues || []).length;
   $("#study-output").innerHTML =
-    `${sessionNotice()}<div class="sample-banner"><strong>${!sessionReady() ? "SAVED STUDY / UNVERIFIED" : sample ? "SAMPLE STUDY" : "QLOO LIVE STUDY"}</strong><p>${!sessionReady() ? "This local copy has not been verified with the server. Your creative notes remain available; its saved research claims are not current evidence." : sample ? "Fictional places and creative proposals. No Qloo affinity scores are implied." : "Places and affinity come from Qloo. Creative treatments are authored interpretations; access and shooting conditions remain unverified."}</p></div>${issues ? `<div class="message"><strong>${issues} reference${issues > 1 ? "s need" : " needs"} a closer look.</strong> ${run.resolutionIssues.map((issue) => e(issue.query) + ": " + e(issue.reason)).join(" ")} Edit the references and try again.</div>` : ""}${
+    `${sessionNotice()}${modeChangeNotice()}<div class="sample-banner"><strong>${!sessionReady() ? "SAVED STUDY / UNVERIFIED" : sample ? "SAMPLE STUDY" : "QLOO LIVE STUDY"}</strong><p>${!sessionReady() ? "This local copy has not been verified with the server. Your creative notes remain available; its saved research claims are not current evidence." : sample ? "Fictional places and creative proposals. No Qloo affinity scores are implied." : "Places and affinity come from Qloo. Creative treatments are authored interpretations; access and shooting conditions remain unverified."}</p></div>${issues ? `<div class="message"><strong>${issues} reference${issues > 1 ? "s need" : " needs"} a closer look.</strong> ${run.resolutionIssues.map((issue) => e(issue.query) + ": " + e(issue.reason)).join(" ")} Edit the references and try again.</div>` : ""}${
       treatment
         ? `
     <div class="treatment-tabs" role="tablist" aria-label="Creative directions">${run.treatments.map((item, index) => `<button type="button" role="tab" id="tab-${index}" aria-controls="treatment-panel" aria-selected="${item.id === treatment.id}" class="treatment-tab" data-treatment="${e(item.id)}"><span class="treatment-code">${String.fromCharCode(65 + index)}</span><span><strong>${e(item.title)}</strong><small>${item.locked ? "KEPT · " : ""}${e(item.candidate?.kind || "LOCATION DIRECTION")}</small></span><span class="tab-arrow" aria-hidden="true">${item.id === treatment.id ? "↗" : "→"}</span></button>`).join("")}</div>
@@ -643,11 +693,12 @@ async function generate() {
     return;
   }
   const previous = app.run;
-  const recovered = previous && !sessionReady() ? [...app.recoveredNotes, ...editedShotNotes()] : app.recoveredNotes;
+  const recovered = previous && (!sessionReady() || !studyModeMatches()) ? [...app.recoveredNotes, ...editedShotNotes()] : app.recoveredNotes;
   setBusy(true);
   message("");
   renderBusy();
   try {
+    await waitForReferenceSearches();
     const run = await api("/api/rehearse", { brief, dataMode: app.dataMode });
     app.run = run;
     app.sessionStatus = "active";
@@ -672,16 +723,19 @@ async function generate() {
     log("Scouting paused", error.message);
   } finally {
     setBusy(false);
+    renderConnection();
   }
 }
 async function revise(action, title) {
   if (app.busy || !app.run || !sessionReady()) return false;
+  if (pauseModeRevision()) return false;
   const previous = app.run;
   const editedBrief = readBrief();
   setBusy(true);
   message("");
   if (action.type === "veto") renderBusy("revise");
   try {
+    await waitForReferenceSearches();
     app.run = await api("/api/revise", {
       state: { runId: previous.runId, revision: previous.revision },
       action,
@@ -694,20 +748,26 @@ async function revise(action, title) {
       ...app.run.brief,
       title: editedBrief.title,
       note: editedBrief.note,
+      city: action.type === "change-city"
+        ? app.run.brief.city
+        : editedBrief.city,
+      purpose: editedBrief.purpose,
+      references: app.run.brief.references.map((reference, index) => {
+        const draft = editedBrief.references[index];
+        const original = previous.brief.references[index];
+        const applied = action.type === "change-reference" &&
+          action.referenceIndex === index;
+        // A revision applies its own input; unrelated draft edits stay editable.
+        const changed = draft && (
+          draft.query !== original?.query ||
+          draft.entityId !== original?.entityId ||
+          draft.domain !== original?.domain
+        );
+        return changed && !applied ? draft : reference;
+      }),
     });
     renderResults();
-    if (
-      ["lock", "unlock", "veto"].includes(action.type) &&
-      editedBrief.references.some(
-        (ref, index) =>
-          ref.query !== previous.brief.references[index]?.query ||
-          ref.entityId !== previous.brief.references[index]?.entityId,
-      )
-    ) {
-      app.references = editedBrief.references;
-      renderReferences();
-      markDirty();
-    }
+    if (pendingResearch()) markDirty();
     const candidate =
       previous.candidates.find((item) => item.id === action.targetId) ||
       previous.treatments.find(
@@ -749,6 +809,7 @@ function closeDialog() {
   (lastDialogTrigger?.isConnected ? lastDialogTrigger : $("#open-brief-nav")).focus();
 }
 function showVeto(id) {
+  if (!sessionReady() || pauseModeRevision()) return;
   const candidate = findCandidate(id);
   if (!candidate) return;
   const item = app.run.treatments.find(
@@ -782,9 +843,28 @@ function showEvidence(id) {
   const treatment = app.run.treatments.find((item) => item.candidateId === id);
   const evidence = treatment?.evidence;
   const sample = candidate.source !== "qloo";
+  const referenceNames = (evidence?.referenceNames?.length
+    ? evidence.referenceNames
+    : (app.run.resolvedReferences || []).map((reference) => reference.name)
+  ).filter(Boolean);
+  const rawFields = { candidate, treatmentEvidence: evidence || null };
   openDialog(
     "RESEARCH / PROVENANCE",
-    `${sessionNotice()}<h2 id="dialog-title">${e(candidate.name)}</h2><p class="dialog-lede">${sample ? "A fictional location in the sample dataset. It proves the interaction, not a Qloo recommendation." : "A place returned by Qloo. Cultural affinity is a research signal, not proof that a location looks like a film or fits a particular person."}</p><section class="evidence-section"><h3>What connects the references</h3><p>${e(evidenceText(evidence?.explanation || candidate.explanation || (sample ? "This sample links the references to a fictional shortlist so you can test selection, revision and export. No live cultural-affinity evidence has been obtained." : "Qloo returned this place for the combined reference set. No per-reference causal explanation was returned.")))}</p><p>${e((evidence?.referenceNames || app.run.resolvedReferences.map((ref) => ref.name)).join(" · "))}</p></section><section class="evidence-section evidence-grid"><div class="evidence-stat"><span>SOURCE</span><strong>${sample ? "Sample dataset" : "Qloo API"}</strong></div><div class="evidence-stat"><span>RAW AFFINITY</span><strong>${candidate.affinityRaw == null ? "Not available" : e(candidate.affinityRaw)}</strong></div><div class="evidence-stat"><span>RESULT RANK</span><strong>${sample ? "Sample ordering" : `#${e(candidate.rank || "—")}`}</strong></div><div class="evidence-stat"><span>CREATIVE DIRECTION</span><strong>${e(creativeLabel(treatment))}</strong></div></section><section class="evidence-section"><h3>What this does not establish</h3><ul><li>Visual similarity, lighting, weather or camera angles.</li><li>Permission to shoot, availability, fees or opening hours.</li><li>A personal likelihood of liking this place.</li></ul></section><div class="source-note">${e(evidence?.note || "Aggregate cultural affinity is not visual similarity or a personal probability.")}<br>Record: ${e(candidate.id)}<br>Retrieved: ${e(candidate.retrievedAt || app.run.provenance?.retrievedAt || "Not recorded")}</div>`,
+    `${sessionNotice()}<h2 id="dialog-title">${e(candidate.name)}</h2>
+    <p class="dialog-lede">${sample ? "A fictional location in the sample dataset. It proves the interaction, not a Qloo recommendation." : "A place returned by Qloo. Cultural affinity is a research signal, not proof that a location looks like a film or fits a particular person."}</p>
+    <section class="evidence-section"><h3>What connects the references</h3>
+      ${referenceNames.length ? `<ul class="evidence-references" aria-label="Resolved cultural references">${referenceNames.map((name) => `<li>${e(name)}</li>`).join("")}</ul>` : '<p>Resolved reference names were not recorded for this result.</p>'}
+      <p>${sample ? "This sample links the references to a fictional shortlist so you can test selection, revision and export. No live cultural-affinity evidence has been obtained." : "Qloo evaluates the combined reference set. This place was returned for that request. The supporting fields do not establish that one reference caused the match, and individual values are not personal probabilities."}</p>
+    </section>
+    <section class="evidence-section evidence-grid">
+      <div class="evidence-stat"><span>SOURCE</span><strong>${sample ? "Sample dataset" : "Qloo API"}</strong></div>
+      <div class="evidence-stat"><span>RAW AFFINITY</span><strong>${e(affinityDisplay(candidate.affinityRaw))}</strong>${typeof candidate.affinityRaw === "number" ? '<small class="affinity-precision">Display rounded. Full precision in the fields below.</small>' : ""}</div>
+      <div class="evidence-stat"><span>RESULT RANK</span><strong>${sample ? "Sample ordering" : `#${e(candidate.rank || "—")}`}</strong></div>
+      <div class="evidence-stat"><span>CREATIVE DIRECTION</span><strong>${e(creativeLabel(treatment))}</strong></div>
+    </section>
+    <details class="evidence-raw"><summary>View raw ${sample ? "sample" : "Qloo"} fields</summary><p>The complete provider record saved in this study, with full saved precision. This is not the full API response.</p><pre>${e(evidenceText(rawFields))}</pre></details>
+    <section class="evidence-section"><h3>What this does not establish</h3><ul><li>Visual similarity, lighting, weather or camera angles.</li><li>Permission to shoot, availability, fees or opening hours.</li><li>A personal likelihood of liking this place.</li></ul></section>
+    <div class="source-note">${e(evidence?.note || "Aggregate cultural affinity is not visual similarity or a personal probability.")}<br>Record: ${e(candidate.id)}<br>Retrieved: ${e(candidate.retrievedAt || app.run.provenance?.retrievedAt || "Not recorded")}</div>`,
   );
   wireSessionActions($("#dialog-content"));
 }
@@ -830,7 +910,7 @@ function showBrief() {
   const verification = app.run.verification || [];
   openDialog(
     "THE HANDOVER / EDITABLE SHOOT BRIEF",
-    `${sessionNotice()}<h2 id="dialog-title">${e(app.run.brief.title)}</h2><p class="dialog-lede">${e(treatment.title)} · ${e(app.run.brief.city)}<br>${e(app.run.brief.note)}</p>${treatment.needsReview ? '<div class="message"><strong>Review required.</strong> This kept direction comes from an earlier brief. The city or references changed; this is not a newly validated location choice.</div>' : ""}<div class="sample-banner"><strong>${app.run.dataMode === "fixture" ? "SAMPLE BRIEF" : "WORKING BRIEF"}</strong><p>${app.run.dataMode === "fixture" ? "Locations are fictional. Use this to test the workflow, not as an actual booking or location plan." : "Locations still need a practical scout. This is a creative plan, not confirmation of availability or permission."}</p></div><p class="creative-credit">${e(creativeLabel(treatment))} · Ideas to test on a scout. Lighting, layout and access have not been verified.</p><div class="brief-section-title"><h3>THE SHOT PLAN</h3><span>EDIT IN PLACE · SAVED ON THIS DEVICE</span></div>${shots.map((shot, index) => `<div class="shot-row"><span class="shot-number">${String(index + 1).padStart(2, "0")}</span><div><label for="shot-${index}">${e(shot.label)}</label><textarea id="shot-${index}" data-shot="${index}" rows="2" maxlength="1500">${e(shot.note)}</textarea><p class="shot-location">${e(treatment.candidate?.name || "Selected location")} · CREATIVE INSTRUCTION, NOT AN OBSERVED CONDITION</p></div></div>`).join("")}${app.recoveredNotes.length ? `<section class="evidence-section"><h3>Saved notes from your earlier study</h3><p>Unassigned creative notes, not evidence for these locations. Copy anything useful into the current shot plan.</p>${app.recoveredNotes.map((item) => `<h4>${e(item.previousDirection)}</h4>${item.shots.map((shot) => `<p><strong>${e(shot.label)}</strong> ${e(shot.note)}</p>`).join("")}`).join("")}</section>` : ""}<div class="brief-section-title"><h3>BEFORE THE SHOOT</h3><span>YOUR VERIFICATION</span></div><div class="brief-checklist">${(verification.length
+    `${sessionNotice()}<h2 id="dialog-title">${e(app.run.brief.title)}</h2><p class="dialog-lede">${e(treatment.title)} · ${e(app.run.brief.city)}<br>${e(app.run.brief.note)}</p>${treatment.needsReview ? '<div class="message"><strong>Review required.</strong> This kept direction comes from an earlier brief. The city or references changed; this is not a newly validated location choice.</div>' : ""}<div class="sample-banner"><strong>${app.run.dataMode === "fixture" ? "SAMPLE BRIEF" : "WORKING BRIEF"}</strong><p>${app.run.dataMode === "fixture" ? "Locations are fictional. Use this to test the workflow, not as an actual booking or location plan." : "Locations still need a practical scout. This is a creative plan, not confirmation of availability or permission."}</p></div><p class="creative-credit">${e(creativeLabel(treatment))} · Ideas to test on a scout. Lighting, layout and access have not been verified.</p><div class="brief-section-title"><h3>THE SHOT PLAN</h3><span>EDIT IN PLACE · SAVED ON THIS DEVICE</span></div>${shots.map((shot, index) => `<div class="shot-row"><span class="shot-number">${String(index + 1).padStart(2, "0")}</span><div><label for="shot-${index}">${e(shot.label)}</label><textarea id="shot-${index}" data-shot="${index}" rows="2" maxlength="1500">${e(shot.note)}</textarea><p class="shot-location">${e(treatment.candidate?.name || "Selected location")} · CREATIVE INSTRUCTION, NOT AN OBSERVED CONDITION</p></div></div>`).join("")}${app.recoveredNotes.length ? `<section class="evidence-section"><h3>Saved notes from your earlier study</h3><p>These unassigned notes stay separate from the brief and evidence exports. Copy anything you want to share into the current shot plan, or save the notes separately.</p><button type="button" class="text-link" data-notes-export>Save my notes ↗</button>${app.recoveredNotes.map((item) => `<h4>${e(item.previousDirection)}</h4>${item.shots.map((shot) => `<p><strong>${e(shot.label)}</strong> ${e(shot.note)}</p>`).join("")}`).join("")}</section>` : ""}<div class="brief-section-title"><h3>BEFORE THE SHOOT</h3><span>YOUR VERIFICATION</span></div><div class="brief-checklist">${(verification.length
       ? verification
       : [
           {
@@ -939,7 +1019,6 @@ function briefMarkdown() {
     "",
     `Run: ${run.runId}; revision: ${run.revision}; planner: ${run.provenance?.planner || "bounded-policy-v1"}`,
     "",
-    ...recoveredNotesMarkdown(),
     "## Decision journal",
     ...app.journal.map(
       (entry) => `- ${entry.at}: ${entry.title}. ${entry.detail}`,
@@ -988,7 +1067,6 @@ async function exportBrief(format) {
           {
             exportedAt: new Date().toISOString(),
             serverVerifiedAt: app.sessionCheckedAt,
-            recoveredCreativeNotes: app.recoveredNotes,
             run: app.run,
             selectedTreatmentId: app.selected,
             editedShots: relevantShots,
@@ -1017,7 +1095,7 @@ $("#brief-form").addEventListener("submit", (event) => {
   if (sessionReady() && app.run?.locks?.length && app.dirty) {
     openDialog(
       "START A FRESH STUDY",
-      `<h2 id="dialog-title">A new brief,<br>a fresh shortlist.</h2><p class="dialog-lede">Re-scouting creates a fresh study from these notes. Your current kept directions will not carry into the new brief. To preserve them, change the city or a reference within the existing study.</p><div class="export-actions"><button type="button" class="button button-secondary" id="cancel-rescout">Stay with this study</button><button type="button" class="button button-accent" id="confirm-rescout">Start a fresh study ↗</button></div>`,
+      `<h2 id="dialog-title">A new brief,<br>a fresh shortlist.</h2><p class="dialog-lede">Re-scouting creates a fresh study from these notes. Your current kept directions will not carry into the new brief. ${studyModeMatches() ? "To preserve them, change the city or a reference within the existing study." : "Your edited shot notes will be saved as unassigned notes. To continue this study instead, switch Data back to its original mode."}</p><div class="export-actions"><button type="button" class="button button-secondary" id="cancel-rescout">Stay with this study</button><button type="button" class="button button-accent" id="confirm-rescout">Start a fresh study ↗</button></div>`,
     );
     $("#cancel-rescout").addEventListener("click", closeDialog);
     $("#confirm-rescout").addEventListener("click", () => {
@@ -1031,6 +1109,7 @@ $("#creative-intent").addEventListener("input", markDirty);
 $("#shoot-style").addEventListener("change", markDirty);
 $("#apply-references").addEventListener("click", async () => {
   if (!app.run || app.busy) return;
+  if (pauseModeRevision()) return;
   const changes = app.references
     .map((reference, index) => ({ reference: { ...reference }, index }))
     .filter(
@@ -1056,7 +1135,7 @@ $("#apply-references").addEventListener("click", async () => {
   toast("References updated. Revisit any kept direction marked for review.");
 });
 $("#city").addEventListener("change", () => {
-  if (app.run && !app.busy && sessionReady()) {
+  if (app.run && !app.busy && revisionReady()) {
     revise(
       { type: "change-city", city: $("#city").value },
       "Moved the scouting area",
@@ -1066,6 +1145,7 @@ $("#city").addEventListener("change", () => {
 $("#data-mode").addEventListener("change", () => {
   app.dataMode = $("#data-mode").value;
   renderConnection();
+  if (app.run) renderResults();
   markDirty();
   if (app.dataMode === "live" && !app.health?.qlooConfigured)
     message(
