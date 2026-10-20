@@ -124,6 +124,51 @@ test('insufficient coverage changes the tool plan and relaxes only the soft cate
   assert.equal(state.resolvedReferences.length, 3);
 });
 
+test('a planner eager to select must expand scarce results, including a pool containing only the fixed choice', async () => {
+  const provider = new FixtureProvider();
+  const original = provider.discover.bind(provider);
+  const queries = [];
+  const offered = [];
+  const planner = {
+    name: 'test-model', model: 'test', calls: 0,
+    async choose(context) {
+      this.calls++;
+      offered.push(structuredClone(context));
+      if (context.available.includes('select_treatments')) {
+        return { action: 'select_treatments', candidateIds: [...context.lockedIds, ...context.candidates.map(c => c.id).filter(id => !context.lockedIds.includes(id))].slice(0, 2), planner: 'local-ollama', model: 'test' };
+      }
+      return { action: context.available[0], usePreferences: true, planner: 'local-ollama', model: 'test' };
+    }
+  };
+  let fixedCandidate;
+  provider.discover = async args => {
+    queries.push(structuredClone(args));
+    const found = await original(args);
+    return args.tags.length ? [fixedCandidate ?? found[0]].filter(Boolean) : found;
+  };
+  let state = await rehearse({ exampleId: 'quiet-city' }, { provider, planner });
+  assert.equal(state.status, 'ready');
+  assert.deepEqual(offered.map(c => c.available), [['discover_places'], ['relax_preferences'], ['select_treatments']]);
+  state = await revise(state, { type: 'lock', targetId: state.treatments[0].id });
+  const fixed = structuredClone(state.treatments[0]);
+  fixedCandidate = fixed.candidate;
+  const rejected = state.treatments[1].candidateId;
+  offered.length = 0;
+  queries.length = 0;
+  state = await revise(state, { type: 'veto', targetId: rejected }, { provider, planner });
+  assert.equal(state.status, 'ready');
+  assert.deepEqual(offered.map(c => c.available), [['discover_places'], ['relax_preferences'], ['select_treatments']]);
+  assert.deepEqual(state.treatments.find(t => t.locked), fixed);
+  assert.ok(state.treatments.every(t => t.candidateId !== rejected));
+  assert.equal(queries.length, 2);
+  assert.ok(queries[0].tags.length > 0);
+  assert.deepEqual(queries[1].tags, []);
+  assert.deepEqual(queries[1].brief, queries[0].brief);
+  assert.deepEqual(queries[1].references, queries[0].references);
+  assert.ok(queries[1].brief.avoidEntityIds.includes(rejected));
+  assert.ok(state.trace.some(t => t.revision === state.revision && t.tool === 'relax_preferences'));
+});
+
 test('even after relaxation zero coverage is explicit and no venue is invented', async () => {
   const provider = new FixtureProvider();
   provider.discover = async () => [];

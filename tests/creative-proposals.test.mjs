@@ -64,7 +64,8 @@ test('observed venue assertions are rejected even after an initial action senten
   for (const [name, mutate] of Object.entries({
     'observed real failure': proposals => [{ ...proposals[0], premise: observedFailure }, proposals[1]],
     'statement after action': proposals => [{ ...proposals[0], premise: 'Try a silhouette study. The venue has soft daylight and pale walls.' }, proposals[1]],
-    'descriptive shot note': proposals => [{ ...proposals[0], shots: proposals[0].shots.map((shot, index) => index ? shot : { ...shot, note: 'The courtyard gives the portrait natural shade.' }) }, proposals[1]]
+    'descriptive shot note': proposals => [{ ...proposals[0], shots: proposals[0].shots.map((shot, index) => index ? shot : { ...shot, note: 'The courtyard gives the portrait natural shade.' }) }, proposals[1]],
+    'observed B shot remains outside the action contract': proposals => [{ ...proposals[0], shots: proposals[0].shots.map((shot, index) => index !== 2 ? shot : { ...shot, note: 'Zoom in on the subject’s eyes, contrasting the warm book tones with the cool city glow.' }) }, proposals[1]]
   })) await t.test(name, async () => {
     const state = await rehearse({ exampleId: 'quiet-city' }, { planner: proposalPlanner(mutate) });
     assert.equal(state.status, 'ready');
@@ -73,6 +74,19 @@ test('observed venue assertions are rejected even after an initial action senten
     assert.ok(state.treatments.every(t => t.editorial.fallbackCode === 'CREATIVE_ACTION_FORM'));
     assert.ok(!JSON.stringify(state.treatments).includes('muted light'));
   });
+});
+
+test('an explicitly conditional creative setup remains a proposal, without claiming factual verification', async () => {
+  const note = 'Frame the subject’s gaze, then test a closer crop if the scout confirms a suitable setup.';
+  const state = await rehearse({ exampleId: 'quiet-city' }, {
+    planner: proposalPlanner(proposals => proposals.map(proposal => ({
+      ...proposal, shots: proposal.shots.map((shot, index) => index === 2 ? { ...shot, note } : shot)
+    })))
+  });
+  assert.ok(state.treatments.every(t => t.editorial.source === 'model-proposed'));
+  assert.ok(state.treatments.every(t => t.editorial.shots[2].note === note));
+  assert.ok(state.treatments.every(t => t.editorial.validation.factualVerification === false));
+  assert.ok(state.treatments.every(t => t.evidence.source === 'fixture' && t.evidence.affinityRaw === null));
 });
 
 test('Position introduces a valid proposed shooting action', async () => {

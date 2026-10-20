@@ -75,7 +75,13 @@ test('explicit re-scout recovers handwritten notes separately, resets keeps and 
   assert.equal(w.run('Object.keys(app.shots).length'), 0);
   assert.equal(w.run('Object.keys(app.checks).length'), 0);
   assert.equal(w.calls.filter(c => c.url === '/api/rehearse').length, 1);
-  assert.match(w.run('briefMarkdown()'), /Unassigned notes from an earlier study/);
+  assert.doesNotMatch(w.run('briefMarkdown()'), /Unassigned notes from an earlier study|Leave space on the left/);
+  w.run('showBrief()');
+  assert.match(w.element('#dialog-content').innerHTML, /stay separate from the brief and evidence exports/);
+  assert.match(w.element('#dialog-content').innerHTML, /data-notes-export/);
+  w.run('exportNotes()');
+  assert.match(await w.downloads[0].blob.text(), /Unassigned notes from an earlier study[\s\S]*Leave space on the left/);
+  assert.equal(w.stored().recoveredNotes[0].shots[0].note, 'Leave space on the left.');
 });
 
 test('expiry discovered on export produces no misleading file and preserves edit controls', async t => {
@@ -180,7 +186,7 @@ test('an unconfigured live default stays in sample; a saved unfinished live draf
   assert.deepEqual(draft.calls.map(c => c.url), ['/api/health', '/api/examples']);
 });
 
-test('a treatment retired in another tab keeps handwritten notes visible and exportable after canonical refresh', async t => {
+test('a retired treatment keeps notes separately downloadable while the current handover exports current edits only', async t => {
   const w = await workspace(t);
   await w.init();
   const retiredId = w.initial.treatments[0].id;
@@ -197,14 +203,20 @@ test('a treatment retired in another tab keeps handwritten notes visible and exp
   assert.equal(w.run(`app.shots[${JSON.stringify(survivorId)}][0].note`), 'Leave room for the cover title.');
   assert.notEqual(w.run('app.selected'), retiredId);
   assert.equal(w.run('app.run.treatments.some(item => item.id === app.selected)'), true);
+  w.run(`app.selected = ${JSON.stringify(survivorId)};`);
   w.run('showBrief()');
   assert.match(w.element('#dialog-content').innerHTML, /Let the subject choose the last frame/);
-  assert.match(w.run('briefMarkdown()'), /Unassigned notes from an earlier study[\s\S]*Let the subject choose the last frame/);
+  assert.doesNotMatch(w.run('briefMarkdown()'), /Unassigned notes from an earlier study|Let the subject choose the last frame/);
+  assert.match(w.run('briefMarkdown()'), /Leave room for the cover title/);
   await w.run('validateSession()');
   await w.run('exportBrief("json")');
   const exported = JSON.parse(await w.downloads[0].blob.text());
-  assert.equal(exported.recoveredCreativeNotes.length, 1);
-  assert.equal(exported.recoveredCreativeNotes[0].shots[0].note, 'Let the subject choose the last frame.');
+  assert.equal(Object.hasOwn(exported, 'recoveredCreativeNotes'), false);
+  assert.doesNotMatch(JSON.stringify(exported), /Let the subject choose the last frame/);
+  assert.equal(exported.editedShots[survivorId][0].note, 'Leave room for the cover title.');
+  w.run('exportNotes()');
+  assert.match(await w.downloads[1].blob.text(), /Unassigned notes from an earlier study[\s\S]*Let the subject choose the last frame/);
+  assert.equal(w.run('app.recoveredNotes[0].shots[0].note'), 'Let the subject choose the last frame.');
   assert.equal(w.stored().recoveredNotes.length, 1);
 });
 

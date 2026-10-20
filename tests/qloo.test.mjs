@@ -15,7 +15,8 @@ test('Qloo adapter sends real documented query keys and normalizes sparse result
   const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async (url, options) => {
     calls.push({ url: String(url), options });
     return new Response(JSON.stringify({ success: true, results: { entities: [
-      { entity_id: 'place-1', name: 'A venue', query: { affinity: 0.27, explainability: { signal: 'movie-id' } }, popularity: 0.8 },
+      { entity_id: 'place-1', name: 'A venue', query: { affinity: 0.27, explainability: { signal: 'movie-id' } }, popularity: 0.8,
+        tags: [{ id: 'urn:tag:amenity:qloo:bookshop', name: 'Bookshop' }, { tag_id: 'urn:tag:genre:place:museum', name: 'Museum' }] },
       { entity_id: 'place-1', name: 'Duplicate' }, { entity_id: 'rejected', name: 'Rejected' }
     ] } }));
   } });
@@ -28,6 +29,7 @@ test('Qloo adapter sends real documented query keys and normalizes sparse result
   assert.equal(calls[0].options.headers['X-Api-Key'], 'test-secret');
   assert.equal(candidates.length, 1);
   assert.equal(candidates[0].affinityRaw, 0.27);
+  assert.equal(candidates[0].kind, 'Museum');
   assert.equal(candidates[0].image, null);
   assert.ok(!JSON.stringify(candidates).includes('test-secret'));
 });
@@ -67,38 +69,41 @@ test('404 from tags or insights remains an upstream error, not an empty successf
   await assert.rejects(qloo.discover({ brief: { city: 'Barcelona', avoidEntityIds: [] }, references: [{ id: 'synthetic-reference' }] }), { code: 'QLOO_UPSTREAM' });
 });
 
-test('tag resolution accepts both documented identifier shapes and preserves the semantic-search query', async t => {
+test('tag resolution accepts both documented identifier shapes and scopes the category query', async t => {
   for (const key of ['id', 'tag_id']) await t.test(key, async () => {
     let request;
     const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async url => {
       request = new URL(url);
-      return Response.json({ results: { tags: [{ [key]: 'synthetic-tag-gallery', name: 'Gallery' }] } });
+      return Response.json({ results: { tags: [{ [key]: 'urn:tag:genre:place:art_gallery', name: 'Art gallery' }] } });
     } });
-    assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'synthetic-tag-gallery', name: 'Gallery', source: 'qloo' }]);
+    assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'urn:tag:genre:place:art_gallery', name: 'Art gallery', source: 'qloo' }]);
     assert.equal(request.pathname, '/v2/tags');
-    assert.equal(request.searchParams.get('filter.query'), 'gallery');
-    assert.equal(request.searchParams.get('feature.semantic_search'), 'true');
+    assert.equal(request.searchParams.get('filter.query'), 'art gallery');
+    assert.equal(request.searchParams.get('filter.tag.types'), 'urn:tag:genre:place');
+    assert.equal(request.searchParams.get('filter.parents.types'), 'urn:entity:place');
     assert.equal(request.searchParams.get('take'), '5');
   });
 });
 
 test('tag parents select a unique place category instead of an identically named media category', async () => {
   const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => Response.json({ results: { tags: [
-    { id: 'synthetic-media', name: 'Gallery', parents: [{ type: 'urn:entity:movie' }] },
-    { tag_id: 'synthetic-place', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
-    { id: 'synthetic-unscoped', name: 'Gallery' },
+    { id: 'urn:tag:genre:movie:gallery', name: 'Gallery', parents: [{ type: 'urn:entity:movie' }] },
+    { tag_id: 'urn:tag:genre:place:art_gallery', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
+    { id: 'urn:tag:amenity:qloo:gallery', name: 'Gallery' },
   ] } }) });
-  assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'synthetic-place', name: 'Gallery', source: 'qloo' }]);
+  assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'urn:tag:genre:place:art_gallery', name: 'Gallery', source: 'qloo' }]);
 });
 
 test('ambiguous, wrong-parent and only-semantic tags remain unconfirmed preferences', async t => {
   const cases = [
     { name: 'ambiguous exact place names', tags: [
-      { id: 'synthetic-one', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
-      { tag_id: 'synthetic-two', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
+      { id: 'urn:tag:genre:place:one', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
+      { tag_id: 'urn:tag:genre:place:two', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] },
     ] },
-    { name: 'known non-place parent', tags: [{ id: 'synthetic-media', name: 'Gallery', parents: [{ type: 'urn:entity:movie' }] }] },
-    { name: 'only a related name', tags: [{ id: 'synthetic-related', name: 'Art museum' }] },
+    { name: 'known non-place parent', tags: [{ id: 'urn:tag:genre:place:gallery', name: 'Gallery', parents: [{ type: 'urn:entity:movie' }] }] },
+    { name: 'only a related name', tags: [{ id: 'urn:tag:genre:place:museum', name: 'Art museum' }] },
+    { name: 'amenity with an exact name and place parent', tags: [{ id: 'urn:tag:amenity:qloo:gallery', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] }] },
+    { name: 'setting is not a category', tags: [{ id: 'urn:tag:setting:qloo:gallery', name: 'Gallery', parents: [{ type: 'urn:entity:place' }] }] },
   ];
   for (const item of cases) await t.test(item.name, async () => {
     const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => Response.json({ results: { tags: item.tags } }) });
@@ -108,9 +113,22 @@ test('ambiguous, wrong-parent and only-semantic tags remain unconfirmed preferen
 
 test('duplicate records for one exact tag ID do not create false ambiguity', async () => {
   const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async () => Response.json({ results: { tags: [
-    { id: 'synthetic-same', name: 'Gallery' }, { tag_id: 'synthetic-same', name: 'Gallery' },
+    { id: 'urn:tag:genre:place:art_gallery', name: 'Gallery' }, { tag_id: 'urn:tag:genre:place:art_gallery', name: 'Gallery' },
   ] } }) });
-  assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'synthetic-same', name: 'Gallery', source: 'qloo' }]);
+  assert.deepEqual(await qloo.findTags('gallery'), [{ id: 'urn:tag:genre:place:art_gallery', name: 'Gallery', source: 'qloo' }]);
+});
+
+test('bookshop resolves to the returned book-store category, never the same-name museum amenity', async () => {
+  let request;
+  const qloo = new QlooProvider({ apiKey: 'test-secret', fetchImpl: async url => {
+    request = new URL(url);
+    return Response.json({ results: { tags: [
+      { id: 'urn:tag:amenity:qloo:bookshop', name: 'Bookshop', parents: [{ type: 'urn:entity:place' }] },
+      { id: 'urn:tag:genre:place:book_store', name: 'Book store', parents: [{ type: 'urn:entity:place' }] },
+    ] } });
+  } });
+  assert.deepEqual(await qloo.findTags('bookshop'), [{ id: 'urn:tag:genre:place:book_store', name: 'Book store', source: 'qloo' }]);
+  assert.equal(request.searchParams.get('filter.query'), 'book store');
 });
 
 test('upstream errors never expose response bodies or credentials', async () => {
