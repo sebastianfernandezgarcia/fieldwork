@@ -51,7 +51,8 @@ export async function validateGroq({ env, maxRequests, groqFetch = fetch, transp
         throw failure(contractFailure);
       }
       const body = JSON.parse(options.body);
-      const request = { index: receipt.requests.length + 1, httpStatus: null, durationMs: null, strictSchemaRequested: body.response_format?.type === 'json_schema' && body.response_format?.json_schema?.strict === true, requestedMaxTokens: body.max_completion_tokens };
+      const selectionAllowed = body.response_format?.json_schema?.schema?.properties?.action?.enum?.includes('select_treatments') === true;
+      const request = { index: receipt.requests.length + 1, httpStatus: null, durationMs: null, strictSchemaRequested: body.response_format?.type === 'json_schema' && body.response_format?.json_schema?.strict === true, requestedMaxTokens: body.max_completion_tokens, completionPhase: selectionAllowed ? 'selection' : 'action' };
       receipt.requests.push(request);
       const begin = performance.now();
       try {
@@ -85,7 +86,7 @@ export async function validateGroq({ env, maxRequests, groqFetch = fetch, transp
     receipt.failureCode = SAFE_FAILURES.has(error?.code) ? error.code : 'PROBE_VALIDATION';
   }
   if (contractFailure) receipt.failureCode = contractFailure;
-  check('strict-structured-output-requested', receipt.requests.length > 0 && receipt.requests.every(r => r.strictSchemaRequested && r.requestedMaxTokens <= 1300));
+  check('strict-structured-output-requested', receipt.requests.length > 0 && receipt.requests.every(r => r.strictSchemaRequested && Number.isInteger(r.requestedMaxTokens) && r.requestedMaxTokens > 0 && r.requestedMaxTokens <= (r.completionPhase === 'selection' ? 2400 : 1300)));
   check('maximum-two-requests', receipt.requests.length <= maxRequests && reservations <= maxRequests);
   receipt.requestCount = receipt.requests.length;
   receipt.finishedAt = new Date().toISOString();

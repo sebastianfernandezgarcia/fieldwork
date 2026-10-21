@@ -49,6 +49,7 @@ test('two bounded actions validate creative proposals while simulation never cla
   assert.equal(receipt.schemaVersion, 'fieldwork.groq-validation.v2');
   assert.equal(receipt.requestCount, 2);
   assert.equal(simulator.count, 2);
+  assert.deepEqual(receipt.requests.map(r => [r.completionPhase, r.requestedMaxTokens]), [['action', 1300], ['selection', 2400]]);
   assert.equal(receipt.liveGroqVerified, false);
   assert.equal(receipt.liveQlooVerified, false);
   assert.equal(receipt.syntheticCandidates, true);

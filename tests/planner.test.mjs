@@ -151,6 +151,31 @@ test('shared budget failure propagates before any Groq request or policy continu
   assert.equal(planner.calls, 0);
 });
 
+test('selection reserves bounded headroom beyond the observed 1300-token truncation without enlarging discovery or relaxation', async () => {
+  const reservations = [];
+  const requests = [];
+  const planner = createGroqPlanner({ apiKey: KEY, beforeRequest: request => reservations.push(request), fetchImpl: async (_url, options) => {
+    const request = JSON.parse(options.body);
+    requests.push(request);
+    const available = request.response_format.json_schema.schema.properties.action.enum;
+    if (available.includes('discover_places')) return response();
+    if (!available.includes('select_treatments')) return response({ action: 'relax_preferences', candidateIds: [] });
+    // A controlled completion beyond the former cap models the diagnosed
+    // boundary; it is not evidence that a live model will finish in this budget.
+    if (request.max_completion_tokens < 1800) return response(null, { choices: [{ finish_reason: 'length', message: { content: '' } }] });
+    return response({ action: 'select_treatments', candidateIds: ['a', 'b'] }, { usage: { prompt_tokens: 2578, completion_tokens: 1800, total_tokens: 4378 } });
+  } });
+  assert.equal((await planner.choose(context())).planner, 'groq');
+  assert.equal((await planner.choose(selection({ available: ['relax_preferences'] }))).planner, 'groq');
+  const selected = await planner.choose(selection());
+  assert.equal(selected.planner, 'groq');
+  assert.deepEqual(selected.candidateIds, ['a', 'b']);
+  assert.deepEqual(requests.map(r => r.max_completion_tokens), [1300, 1300, 2400]);
+  assert.deepEqual(reservations.map(r => r.maxCompletionTokens), [1300, 1300, 2400]);
+  assert.ok(requests.every(r => r.reasoning_effort === 'low' && r.response_format.json_schema.strict === true));
+  assert.equal(planner.calls, 3);
+});
+
 test('upstream failures stay sanitized and do not retry during the same scout', async t => {
   for (const [status, code] of [[401, 'AUTH'], [403, 'AUTH'], [429, 'RATE_LIMIT'], [500, 'UPSTREAM'], [302, 'UPSTREAM']]) await t.test(`HTTP ${status}`, async () => {
     let count = 0;
@@ -187,13 +212,14 @@ test('failed selection exposes only bounded HTTP and allowlisted provider diagno
   assert.equal(calls, 2);
 });
 
-test('a truncated HTTP 200 selection retains bounded completion evidence in its trace without retrying or changing the banner', async () => {
+test('a selection truncated even at its increased allowance is still rejected without retrying or changing the banner', async () => {
   let calls = 0;
-  const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async () => {
+  const planner = createGroqPlanner({ apiKey: KEY, fetchImpl: async (_url, options) => {
     if (++calls === 1) return response();
+    const cap = JSON.parse(options.body).max_completion_tokens;
     return Response.json({
       choices: [{ finish_reason: 'length', message: { content: 'PRIVATE_PARTIAL_ACTION', reasoning: 'PRIVATE_REASONING' } }],
-      usage: { prompt_tokens: 2600, completion_tokens: 1300, total_tokens: 3900, private: 'PRIVATE_USAGE' },
+      usage: { prompt_tokens: 2600, completion_tokens: cap, total_tokens: 2600 + cap, private: 'PRIVATE_USAGE' },
       private: 'PRIVATE_ENVELOPE'
     });
   } });
@@ -201,8 +227,8 @@ test('a truncated HTTP 200 selection retains bounded completion evidence in its 
   const failed = state.trace.find(t => t.fallbackCode === 'GROQ_CONTRACT');
   assert.match(failed.outputSummary, /HTTP_200, FINISH_LENGTH/);
   assert.deepEqual(failed.plannerDiagnostic, {
-    finishReason: 'length', completionTokenLimit: 1300,
-    usage: { prompt_tokens: 2600, completion_tokens: 1300, total_tokens: 3900 }
+    finishReason: 'length', completionTokenLimit: 2400,
+    usage: { prompt_tokens: 2600, completion_tokens: 2400, total_tokens: 5000 }
   });
   assert.equal(state.provenance.modelActions, 1);
   assert.equal(state.provenance.policyActions, 1);
@@ -230,7 +256,7 @@ test('HTTP 200 diagnostics distinguish contract failures and omit unknown finish
     const result = await planner.choose(selection());
     assert.equal(result.fallbackCode, 'GROQ_CONTRACT');
     assert.deepEqual(result.fallbackDetailCodes, ['HTTP_200', item.detail]);
-    assert.deepEqual(result.fallbackDiagnostic, { finishReason: item.finish ? 'unknown' : 'stop', completionTokenLimit: 1300 });
+    assert.deepEqual(result.fallbackDiagnostic, { finishReason: item.finish ? 'unknown' : 'stop', completionTokenLimit: 2400 });
     assert.ok(result.candidateIds.includes('a'));
     assert.equal(JSON.stringify(result).includes('PRIVATE_'), false);
   });
